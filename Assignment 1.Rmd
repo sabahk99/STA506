@@ -1,0 +1,379 @@
+---
+title: 'Assignment 1: Estimating CDF and PDF'
+author: 'Sabah Khan'
+date: 'Due: February 3rd, 2026'
+output:
+  html_document:           # output document format
+    toc: no               # add table contents
+    toc_float: yes         # toc_property: floating
+    toc_depth: 4           # depth of TOC headings
+    fig_width: 6           # global figure width
+    fig_height: 4          # global figure height
+    fig_caption: yes       # add figure caption
+    number_sections: no   # numbering section headings
+    toc_collapsed: yes     # TOC subheading clapsing
+    code_folding: hide     # folding/showing code 
+    code_download: yes     # allow to download complete RMarkdown source code
+    smooth_scroll: yes     # scrolling text of the document
+    theme: lumen           # visual theme for HTML document only
+    highlight: tango       # code syntax hightlighting styles
+  pdf_document: 
+    toc: no
+    toc_depth: 4
+    fig_caption: yes
+    number_sections: no
+  word_document:
+    toc: no
+    toc_depth: '4'
+---
+```{css, echo = FALSE}
+div#TOC li {     /* table of content  */
+    list-style:upper-roman;
+    background-image:none;
+    background-repeat:none;
+    background-position:0;
+}
+
+h1.title {    /* level 1 header of title  */
+  font-size: 24px;
+  font-weight: bold;
+  color: DarkRed;
+  text-align: center;
+}
+
+h4.author { /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-weight: bold;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkRed;
+  text-align: center;
+}
+
+h4.date { /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-weight: bold;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+  text-align: center;
+}
+
+
+```{r setup, include=FALSE}
+
+```
+
+#### **Question 1**
+
+
+##### a) Writing an R Function for ECDF and validating using R's ecdf function
+
+```{r echo=FALSE}
+times <- c(23, 45, 67, 89, 112, 156, 189, 245)
+uniq.time <- sort(unique(times))
+
+my.ECDF <- function(indat, outx){
+  
+  freq.table <- table(indat)                          
+  uniq <- as.numeric(names(freq.table))          
+  rep.time <- as.vector(freq.table)                   
+  cum.rel.feq <- cumsum(rep.time)/sum(rep.time)       
+  cum.prob <- NULL
+  for (i in 1:length(outx)){
+    intvl.id <- which(uniq <= outx[i])     
+    cum.prob[i] <- cum.rel.feq[max(intvl.id)] 
+  }
+  cum.prob             
+}
+plot(uniq.time, my.ECDF(indat = times, outx = uniq.time), type = "s",
+     main = "ECDF of Failure Times",
+     xlab = "Failure Times in Hours",
+     ylab = "Cumulative Probability")
+
+
+                    
+
+ecdf(times)
+```
+##### The ECDF seems to have been set up correctly when comparing the steps in the graph to the numerical values in the ECDF vector for numerical values.
+
+##### b) A colleague claims that the probability of failure before 100 hours is 0.5 based on these data. Do you agree? Explain your reasoning using the empirical cumulative distribution function (ECDF).
+
+##### I agree with my colleague. When looking at the numerical values in the vector containing failure times, we see values 23, 45, 67, 89, 112, 156, 189, and 245. Of these values, 4 are below 100, and 4 are above 100, representing a 50% chance, or 0.5 probability of failure before 100 hours and also a 0.5 probability of failure above 100 hours. 
+
+                                                                                                                                                                                                                                           
+
+#### **Question 2**
+
+##### a) Histogram of given data with 3 equally spaced bins:
+
+```{r echo=FALSE}
+
+hist(times, breaks = 3, freq = FALSE)
+
+```
+
+##### The distribution of failure times appears to have a right skew, with the first bin having an estimated density of 0.005, the 2nd bin having an estimated density of 0.0035, and the 3rd bin having an estimated density of 0.001. 
+                                                                                                                  
+##### b) Writing an R function that computes kernel density estimates using a Gaussian kernel with h=2 and Validating against R’s built-in density() function:
+
+```{r echo=FALSE}
+
+my.kerf <- function(in.data, h, out.x){
+  n <- length(in.data)     
+  den <- NULL              
+  for (i in 1:length(out.x)){
+    den[i] <- sum(dnorm(out.x[i], mean=in.data, sd = h))/n  
+  }
+  den  
+}
+
+density(times, bw = 2, adjust = 1,
+        kernel = c("gaussian"),
+        weights = NULL, window = kernel, width,
+        give.Rkern = FALSE, subdensity = FALSE,
+        warnWbw = var(weights) > 0,
+        n = 8, cut = 3, ext = 4,
+        old.coords = FALSE,
+        na.rm = FALSE)
+
+xx = seq(0,100, length=200)
+##  
+my.den <- my.kerf(in.data = times, h = 2, out.x = xx)
+## density()
+kde <- density(times, bw = 2, kernel = "gaussian")
+##
+kde.y <-approx(kde$x, kde$y, xout = xx)$y
+## base R plot
+plot(xx, my.den, type = "l", main = "Comparing Kernel Density Estimators",
+     xlab = "Failure Times",
+     ylab = "Kernel Density",
+     lty = 1,
+     lwd = 2,
+     col = "navy")
+## add density curve based on the built-in density()
+lines(xx, kde.y, lty = 2, lwd = 2, col = "orange")
+legend("topright", c("my.kerf()", "density()"), lty =c(1,2), lwd = rep(2,2),
+       col = c("navy", "orange"), cex = 0.8, bty = "n")
+
+```
+
+##### My kernel density estimator function and R's built in density estimator function are practically overlayed on top of one another, thereby validating my kernel density estimator function. 
+
+
+
+##### c) Writing an R function that computes kernel density estimates using an Epanechnikov kernel with h=2 and Validating against R’s built-in density() function:
+
+```{r echo=FALSE}
+
+my.kerf <- function(in.data, h, out.x){
+  n <- length(in.data)     
+  den <- NULL              
+  for (i in 1:length(out.x)){
+    den[i] <- sum(dnorm(out.x[i], mean=in.data, sd = h))/n  
+  }
+  den  
+}
+
+density(times, bw = 2, adjust = 1,
+        kernel = c("epanechnikov"),
+        weights = NULL, window = kernel, width,
+        give.Rkern = FALSE, subdensity = FALSE,
+        warnWbw = var(weights) > 0,
+        n = 8, cut = 3, ext = 4,
+        old.coords = FALSE,
+        na.rm = FALSE)
+
+xx = seq(0,100, length=200)
+##  
+my.den <- my.kerf(in.data = times, h = 2, out.x = xx)
+## density()
+kde <- density(times, bw = 2, kernel = "epanechnikov")
+##
+kde.y <-approx(kde$x, kde$y, xout = xx)$y
+## base R plot
+plot(xx, my.den, type = "l", main = "Comparing Kernel Density Estimators",
+     xlab = "Failure Times",
+     ylab = "Kernel Density",
+     lty = 1,
+     lwd = 2,
+     col = "navy")
+## add density curve based on the built-in density()
+lines(xx, kde.y, lty = 2, lwd = 2, col = "orange")
+legend("topright", c("my.kerf()", "density()"), lty =c(1,2), lwd = rep(2,2),
+       col = c("navy", "orange"), cex = 0.8, bty = "n")
+```
+
+##### We can see that choosing Gaussian kernel is favorable in terms of comparing my density estimator function with R's build in density estimator function. The Epanechnikov kernel results in a slight density difference between my estimator and R's estimator. 
+
+##### d) Let's see what happens when we select h=1.5 versus h=2.5 for both kernel estimators. 
+
+                                                                                                                      
+##### Gaussian Density Estimator with h=1.5:
+
+```{r echo=FALSE}
+
+my.kerf <- function(in.data, h, out.x){
+  n <- length(in.data)     
+  den <- NULL              
+  for (i in 1:length(out.x)){
+    den[i] <- sum(dnorm(out.x[i], mean=in.data, sd = h))/n  
+  }
+  den  
+}
+
+density(times, bw = 1.5, adjust = 1,
+        kernel = c("gaussian"),
+        weights = NULL, window = kernel, width,
+        give.Rkern = FALSE, subdensity = FALSE,
+        warnWbw = var(weights) > 0,
+        n = 8, cut = 3, ext = 4,
+        old.coords = FALSE,
+        na.rm = FALSE)
+
+xx = seq(0,100, length=200)
+##  
+my.den <- my.kerf(in.data = times, h = 1.5, out.x = xx)
+## density()
+kde <- density(times, bw = 1.5, kernel = "gaussian")
+##
+kde.y <-approx(kde$x, kde$y, xout = xx)$y
+## base R plot
+plot(xx, my.den, type = "l", main = "Comparing Kernel Density Estimators",
+     xlab = "Failure Times",
+     ylab = "Kernel Density",
+     lty = 1,
+     lwd = 2,
+     col = "navy")
+## add density curve based on the built-in density()
+lines(xx, kde.y, lty = 2, lwd = 2, col = "orange")
+legend("topright", c("my.kerf()", "density()"), lty =c(1,2), lwd = rep(2,2),
+       col = c("navy", "orange"), cex = 0.8, bty = "n")
+```
+                                                                                                                      
+##### Gaussian Density Estimator with h=2.5:
+
+```{r echo=FALSE}
+
+my.kerf <- function(in.data, h, out.x){
+  n <- length(in.data)     
+  den <- NULL              
+  for (i in 1:length(out.x)){
+    den[i] <- sum(dnorm(out.x[i], mean=in.data, sd = h))/n  
+  }
+  den  
+}
+
+density(times, bw = 2.5, adjust = 1,
+        kernel = c("gaussian"),
+        weights = NULL, window = kernel, width,
+        give.Rkern = FALSE, subdensity = FALSE,
+        warnWbw = var(weights) > 0,
+        n = 8, cut = 3, ext = 4,
+        old.coords = FALSE,
+        na.rm = FALSE)
+
+xx = seq(0,100, length=200)
+##  
+my.den <- my.kerf(in.data = times, h = 2.5, out.x = xx)
+## density()
+kde <- density(times, bw = 2.5, kernel = "gaussian")
+##
+kde.y <-approx(kde$x, kde$y, xout = xx)$y
+## base R plot
+plot(xx, my.den, type = "l", main = "Comparing Kernel Density Estimators",
+     xlab = "Failure Times",
+     ylab = "Kernel Density",
+     lty = 1,
+     lwd = 2,
+     col = "navy")
+## add density curve based on the built-in density()
+lines(xx, kde.y, lty = 2, lwd = 2, col = "orange")
+legend("topright", c("my.kerf()", "density()"), lty =c(1,2), lwd = rep(2,2),
+       col = c("navy", "orange"), cex = 0.8, bty = "n")
+```
+                                                                                                                      
+##### Epanechnikov Density Estimator with h=1.5:
+
+```{r echo=FALSE}
+
+my.kerf <- function(in.data, h, out.x){
+  n <- length(in.data)     
+  den <- NULL              
+  for (i in 1:length(out.x)){
+    den[i] <- sum(dnorm(out.x[i], mean=in.data, sd = h))/n  
+  }
+  den  
+}
+
+density(times, bw = 1.5, adjust = 1,
+        kernel = c("epanechnikov"),
+        weights = NULL, window = kernel, width,
+        give.Rkern = FALSE, subdensity = FALSE,
+        warnWbw = var(weights) > 0,
+        n = 8, cut = 3, ext = 4,
+        old.coords = FALSE,
+        na.rm = FALSE)
+
+xx = seq(0,100, length=200)
+##  
+my.den <- my.kerf(in.data = times, h = 1.5, out.x = xx)
+## density()
+kde <- density(times, bw = 1.5, kernel = "epanechnikov")
+##
+kde.y <-approx(kde$x, kde$y, xout = xx)$y
+## base R plot
+plot(xx, my.den, type = "l", main = "Comparing Kernel Density Estimators",
+     xlab = "Failure Times",
+     ylab = "Kernel Density",
+     lty = 1,
+     lwd = 2,
+     col = "navy")
+## add density curve based on the built-in density()
+lines(xx, kde.y, lty = 2, lwd = 2, col = "orange")
+legend("topright", c("my.kerf()", "density()"), lty =c(1,2), lwd = rep(2,2),
+       col = c("navy", "orange"), cex = 0.8, bty = "n")
+```
+                                                                                                                      
+##### Epanechnikov Density Estimator with h=2.5:
+
+```{r echo=FALSE}
+
+my.kerf <- function(in.data, h, out.x){
+  n <- length(in.data)     
+  den <- NULL              
+  for (i in 1:length(out.x)){
+    den[i] <- sum(dnorm(out.x[i], mean=in.data, sd = h))/n  
+  }
+  den  
+}
+
+density(times, bw = 2.5, adjust = 1,
+        kernel = c("epanechnikov"),
+        weights = NULL, window = kernel, width,
+        give.Rkern = FALSE, subdensity = FALSE,
+        warnWbw = var(weights) > 0,
+        n = 8, cut = 3, ext = 4,
+        old.coords = FALSE,
+        na.rm = FALSE)
+
+xx = seq(0,100, length=200)
+##  
+my.den <- my.kerf(in.data = times, h = 2.5, out.x = xx)
+## density()
+kde <- density(times, bw = 2.5, kernel = "epanechnikov")
+##
+kde.y <-approx(kde$x, kde$y, xout = xx)$y
+## base R plot
+plot(xx, my.den, type = "l", main = "Comparing Kernel Density Estimators",
+     xlab = "Failure Times",
+     ylab = "Kernel Density",
+     lty = 1,
+     lwd = 2,
+     col = "navy")
+## add density curve based on the built-in density()
+lines(xx, kde.y, lty = 2, lwd = 2, col = "orange")
+legend("topright", c("my.kerf()", "density()"), lty =c(1,2), lwd = rep(2,2),
+       col = c("navy", "orange"), cex = 0.8, bty = "n")
+```
+
+##### From the above graphs, we can see that the Gaussian kernel estimator is closest to my created density estimator function, regardless of the height used, but when an Epanechnikov kernel estimator is used, the curves look distinctly different, and it seems as h increases, we get an almost rectangular estimator; this supports the idea that the bandwidth or height selection is more important than the type of kernel selected. 
