@@ -1,0 +1,167 @@
+---
+title: 'Assignment 2 - Sampling Distributions'
+author: 'Sabah Khan'
+date: "Due: February 10, 2026"
+output:
+  html_document:           # output document format
+    toc: yes               # add table contents
+    toc_float: yes         # toc_property: floating
+    toc_depth: 4           # depth of TOC headings
+    fig_width: 6           # global figure width
+    fig_height: 4          # global figure height
+    fig_caption: yes       # add figure caption
+    number_sections: yes   # numbering section headings
+    toc_collapsed: yes     # TOC subheading clapsing
+    code_folding: hide     # folding/showing code 
+    code_download: yes     # allow to download complete RMarkdown source code
+    smooth_scroll: yes     # scrolling text of the document
+    theme: lumen           # visual theme for HTML document only
+    highlight: tango       # code syntax hightlighting styles
+  pdf_document: 
+    toc: yes
+    toc_depth: 4
+    fig_caption: yes
+    number_sections: yes
+  word_document:
+    toc: yes
+    toc_depth: '4'
+---
+
+```{css, echo = FALSE}
+div#TOC li {     /* table of content  */
+    list-style:upper-roman;
+    background-image:none;
+    background-repeat:none;
+    background-position:0;
+}
+
+h1.title {    /* level 1 header of title  */
+  font-size: 24px;
+  font-weight: bold;
+  color: DarkRed;
+  text-align: center;
+}
+
+h4.author { /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-weight: bold;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkRed;
+  text-align: center;
+}
+
+h4.date { /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-weight: bold;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+  text-align: center;
+}
+
+h1 { /* Header 1 - and the author and data headers use this too  */
+    font-size: 20px;
+    font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: center;
+}
+
+h2 { /* Header 2 - and the author and data headers use this too  */
+    font-size: 18px;
+    font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: navy;
+    text-align: left;
+}
+
+h3 { /* Header 3 - and the author and data headers use this too  */
+    font-size: 16px;
+    font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: navy;
+    text-align: left;
+}
+
+h4 { /* Header 4 - and the author and data headers use this too  */
+    font-size: 14px;
+  font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: left;
+}
+
+/* Add dots after numbered headers */
+.header-section-number::after {
+  content: ".";
+}
+```
+
+```{r setup, include=FALSE}
+# code chunk specifies whether the R code, warnings, and output 
+# will be included in the output files.
+
+if (!require("knitr")) {                      # use conditional statement to detect
+   install.packages("knitr")                  # whether a package was installed in
+   library(knitr)     
+if (!require("imager"))
+  installed.packages("imager")
+  library(imager)
+                                                # your machine. If not, install it and
+}                                             # load it to the working directory.
+#
+knitr::opts_chunk$set(echo = TRUE,            # include code chunk in the output file
+                      warning = FALSE,        # sometimes, you code may produce warning messages,
+                                              # you can choose to include the warning messages in
+                                              # the output file. 
+                      results = TRUE,         # you can also decide whether to include the output
+                                              # in the output file.
+                      message = FALSE,        # suppress messages 
+                      comment = NA            # remove the default leading hash tags in the output
+                      )   
+```
+
+
+Sampling distributions show us the ways in which sample statistics behave. For example, how does the mean of a sample behave? How does the variance of a sample behave? How do sample proportions behave when our sample can only take on binary values like pass/fail?
+The following is a short essay describing the normal, t, chi-square, and F distributions, their assumptions, and their connections:
+
+# Normal Distribution
+
+A normal distribution can be visualized by a symmetric, bell shaped curve with short tails. A normal distribution is characterized by the mean and the standard deviation. The mean value will be at the center of the bell curve, with most other values clustered around the mean, and lesser values at the tails. A special kind of normal distribution, the standard normal, has a mean of zero and a standard deviation of 1. This special kind of normal distribution can be used to standardize all other normal distributions. Normal distributions can be standardized using a Z score. This is a unitless value that is useful because everyone can use the same reference distribution (or Z score). Z-scores transform any normal distribution into the standard normal distribution, which has a mean of zero and a standard deviation of 1. But what if the sample taken from a population is not perfectly normal, or normal at all? The central limit theorem tells us that as n (sample size) approaches infinity, the sample means will be normally distributed. This means that it doesn't matter if our population behaves oddly, if the sample size is large enough, the sample mean will look normal. If a population has a normal distribution for any measured characteristic when all raw data is measured, for example, number of school absences per year or the salary of entry level mechanical engineers in Pennsylvania, then a sample taken from that population will show that the mean values also have a normal distribution, and in the case of a perfectly normal population, the sample mean distribution will also be perfectly normal.   
+
+```{r echo = FALSE, fig.align='center', out.width="80%"}
+include_graphics("C:\\Users\\Sabah\\OneDrive\\Documents\\Mathematical Statistics II - Peng\\Normal.png")
+```
+
+
+# t distribution
+
+In most actual real world data, we don't know the population variance so we estimate it from the sample data. The variance is just the average squared deviation of each data point from the mean. And the standard deviation, is the square root of the variance. So in other words, when we don't know what the standard deviation (or variance) of the population is, we can use a t distribution. A t distribution looks similar to a normal distribution in terms of the shape of the curve. But unlike a normal distribution curve, the tails on a t distribution curve are wider - accounting for the uncertainty associated with not knowing the variance. the t distribution is characterized by its degrees of freedom, which are equal to n-1, for sample size n.  
+
+```{r echo = FALSE, fig.align='center', out.width="80%"}
+include_graphics("C:\\Users\\Sabah\\OneDrive\\Documents\\Mathematical Statistics II - Peng\\t-dist.png")
+```
+
+
+# Chi-square distribution
+
+For a normally distributed population, the sampling distribution of the sample variance, for a given sample, is characterized through a chi-square distribution. Like the t distribution, the Chi-square distribution is also characterized by its degrees of freedom, n-1. As degrees of freedom get larger, the distribution becomes more spread out. And again, because of the Central Limit Theorem, larger degrees of freedom will make the chi-square distribution also approach a normal distribution. As mentioned, a chi-square distribution is the sampling distribution of the sample variance from a normal population, and variance is always positive, therefore, chi-square distributions are right skewed in shape. 
+
+```{r echo = FALSE, fig.align='center', out.width="80%"}
+include_graphics("C:\\Users\\Sabah\\OneDrive\\Documents\\Mathematical Statistics II - Peng\\chi-sq.png")
+```
+
+
+
+# F distribution
+
+If we were to take two independent sample variances, and get a distribution for their ratio - we would end up with the F distribution. We know that variances are characterized by chi-square distributions, and we now know that F distributions are sampling distributions for the ration of two independent sample variances, so it follows that F distributions are directly defined based on two independent chi-square distributions. Recall that chi-square distributions are right skewed because variances are not negative, therefore, F distributions are also positive and right skewed because they are based on chi-square distributions. Because the F distribution is a ratio, it has two parameters: degrees of freedom on the numerator and degrees of freedom on the denominator. The F distribution is often used in many industries (for example, manufacturing) to compare quality of samples - since variance can be considered a measure of quality. For example, a length measurement on a manufactured part, during an assembly shift in which 30 parts are manufactured, having a high variance for said length measurement across all 30 parts would depict low quality in terms of homogeneity of the dimensions across all parts manufactured. 
+
+```{r echo = FALSE, fig.align='center', out.width="80%"}
+include_graphics("C:\\Users\\Sabah\\OneDrive\\Documents\\Mathematical Statistics II - Peng\\f-dist.png")
+```
+
+
+
+
+
+
