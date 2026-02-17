@@ -1,0 +1,213 @@
+---
+title: 'Assignment 3 - ECDF and Bootstrap Sampling and Applications'
+author: 'Sabah Khan'
+date: "Due: February 17, 2026"
+output:
+  html_document:           # output document format
+    toc: yes               # add table contents
+    toc_float: yes         # toc_property: floating
+    toc_depth: 4           # depth of TOC headings
+    fig_width: 6           # global figure width
+    fig_height: 4          # global figure height
+    fig_caption: yes       # add figure caption
+    number_sections: yes   # numbering section headings
+    toc_collapsed: yes     # TOC subheading clapsing
+    code_folding: hide     # folding/showing code 
+    code_download: yes     # allow to download complete RMarkdown source code
+    smooth_scroll: yes     # scrolling text of the document
+    theme: lumen           # visual theme for HTML document only
+    highlight: tango       # code syntax hightlighting styles
+  pdf_document: 
+    toc: yes
+    toc_depth: 4
+    fig_caption: yes
+    number_sections: yes
+  word_document:
+    toc: yes
+    toc_depth: '4'
+---
+
+```{css, echo = FALSE}
+div#TOC li {     /* table of content  */
+    list-style:upper-roman;
+    background-image:none;
+    background-repeat:none;
+    background-position:0;
+}
+
+h1.title {    /* level 1 header of title  */
+  font-size: 24px;
+  font-weight: bold;
+  color: DarkRed;
+  text-align: center;
+}
+
+h4.author { /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-weight: bold;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkRed;
+  text-align: center;
+}
+
+h4.date { /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-weight: bold;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+  text-align: center;
+}
+
+h1 { /* Header 1 - and the author and data headers use this too  */
+    font-size: 20px;
+    font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: center;
+}
+
+h2 { /* Header 2 - and the author and data headers use this too  */
+    font-size: 18px;
+    font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: navy;
+    text-align: left;
+}
+
+h3 { /* Header 3 - and the author and data headers use this too  */
+    font-size: 16px;
+    font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: navy;
+    text-align: left;
+}
+
+h4 { /* Header 4 - and the author and data headers use this too  */
+    font-size: 14px;
+  font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: left;
+}
+
+/* Add dots after numbered headers */
+.header-section-number::after {
+  content: ".";
+}
+```
+
+```{r setup, include=FALSE}
+# code chunk specifies whether the R code, warnings, and output 
+# will be included in the output files.
+
+if (!require("knitr")) {                      # use conditional statement to detect
+   install.packages("knitr")                  # whether a package was installed in
+   library(knitr)     
+if (!require("imager"))
+  installed.packages("imager")
+  library(imager)
+                                                # your machine. If not, install it and
+}                                             # load it to the working directory.
+#
+knitr::opts_chunk$set(echo = TRUE,            # include code chunk in the output file
+                      warning = FALSE,        # sometimes, you code may produce warning messages,
+                                              # you can choose to include the warning messages in
+                                              # the output file. 
+                      results = TRUE,         # you can also decide whether to include the output
+                                              # in the output file.
+                      message = FALSE,        # suppress messages 
+                      comment = NA            # remove the default leading hash tags in the output
+                      )   
+```
+
+<!-- Discuss the concepts of the bootstrap sampling plan, the bootstrap sampling distribution, and the asymptotic sampling distribution in the context of statistics (e.g., sample mean and variance) computed from an independent and identically distributed (i.i.d.) sample. Your discussion should: -->
+
+<!-- Clearly outline the key assumptions required for each method. -->
+
+<!-- Explain the practical application of each distribution. -->
+
+<!-- Provide guidance on when and why one should be preferred over the other in statistical inference. -->
+
+# Asymptotic vs Bootstrap Sampling Distributions
+
+Consider an estimator like the estimated sample mean, or the estimated sample variance, or the estimated sample proportion, associated with a sample that is independently and identically distributed. The asymptotic sampling distribution basically describes the behavior of these estimators as the sample gets larger. The assumption here is that we have a large sample size, or a large population from which we can take a few samples and thus we would have estimators for each sample taken from said population. Those estimators have a limit of convergence for their distribution. That limit is the asymptotic sample distribution, and it is generally understood, thanks to the Central Limit Theorem, that estimators such as sample mean and sample variance will be normally distributed for a large sample as the sample gets larger, or for a large or infinite population as the population approaches infinity. Again, the key assumption here is that the sample size or population size is large, that the data are iid, and that the variance of the sample is finite (even though the sample is very large). And so naturally, the practical application for use of asymptotic distributions would be to make estimations of large samples from smaller sub samples, or to make estimations of large or infinite populations based on smaller samples from said large populations. Asymptotic distribution is preferred when sample size is large and impractical to collect data on the entire sample or impractical to take numerous repeat samples from a large population. 
+
+For the same sample that is independently and identically distributed, a bootstrap sampling plan would consist of repeatedly taking samples, with replacement, from the empirical distribution of the observed data. The Glivenko-Cantelli theorem ensures that the empirical distribution converges uniformly to the true distribution as the sample size grows (Peng). A bootstrap sampling plan, for example, for a measure of GPA's for classroom of students in a class of 5 students, would consist of taking repeated samples from the 5 students original given GPA's (empirical observed data). Let's say the GPA's are 3.4, 2.5, 2.8, 3.1, and 4.0. A bootstrap sampling plan might have repeated samples with values 3.4, 3.4, 2.5, 2.5, and 4.0 for the first bootstrap, and it might have values 2.8, 2.5, 2.5, 4.0, 3.1 for the second bootstrap sample, and so on. The practical application for bootstrapping is when sample size is small or moderate. Although the above example uses five data values (for GPA), bootstrapping may perform poorly when n<20, but the bootstrap method does assume that a sample represents a population. Bootsrapping is also useful when using complex statistics and sample distribution is unknown (Peng). The bootstrap method, like the asymptotic distribution, does not assume a parametric distribution of the underlying population. The bootstrap distribution refers to the distribution of the repeated sample draws that are made from the original data (sample draws, with replacement). It should also be noted that the sample draws should be of equal size - and that they should be of the same size as the original data from where samples are being drawn. 
+
+When a sample is very large, the asymptotic distribution should be utilized, and when a sample is moderate or small, and/or uses complex statistics, the bootstrap method should be utilized. 
+
+ 
+# Daily Coffee Sales (in mL) at Two Different Cafe Locations
+
+This data set represents the volume of regular brewed coffee sold per day (in milliliters) at two different cafe locations over a period of 50 days.
+
+```{r echo = FALSE, fig.align='center', out.width="80%"}
+include_graphics("C:\\Users\\Sabah\\OneDrive\\Documents\\Mathematical Statistics II - Peng\\Coffee.png")
+```
+This dataset is not large enough to justify using the Central Limit Theorem to derive the asymptotic sampling distribution of the sample mean. As mentioned above, Asymptotic distribution is preferred when sample size is large and it is impractical to collect data on the entire sample or impractical to take numerous repeat samples from a large population. In this case, the sample is small enough to manage without having to utilize asymptotic distribution. In fact, it is small enough that an exact distribution can be obtained and a representative smaller sample does not need to be drawn.  
+
+Bootstrapping would be appropriate with a small sample size like this. In fact, when plugging the values into a calculator and finding the mean, we find that the true mean of the dataset above is 5250 mL. 
+
+We can use this true mean to validate the results of applying a bootstrap method to the above data. As can be seen below, the bootstrap method validates the true mean of 5250 mL. 
+
+```{r echo = FALSE}
+
+coffee<-c(2850, 3200, 2900, 3100, 2950, 7800, 8100, 7900, 3300, 3050, 4000, 4200, 3150, 3400, 7700, 8200, 
+3250, 4400, 3100, 4200, 4500, 4800, 4300, 8500, 8200, 8900, 8700, 3250, 3000, 4600, 4100, 8400, 
+8800, 3350, 4700, 3100, 8100, 3050, 8300, 4100, 3100, 8300, 8900, 8200, 4400, 4500, 3250, 4600, 
+8400, 3300, 4200, 4500, 4800, 4300, 8500)
+
+```
+```{r echo = FALSE}
+
+### Bootstrap sampling begins 
+bt.sample.mean.vec = NULL      # define an empty vector to hold sample means of repeated samples.
+for(i in 1:1000){              # starting for-loop to take bootstrap samples with n = 55
+  ith.bt.sample = sample(x = coffee, # Original sample with 55 coffee data sales
+                       size = 55,             # sample size = 55 is equal to the sample size
+                    replace = TRUE            # MUST use WITH REPLACEMENT!!
+                       )                      # this is the i-th Bootstrap sample
+  bt.sample.mean.vec[i] = mean(ith.bt.sample) # calculate the mean of i-th bootstrap sample and 
+                                              # save it in the empty vector: sample.bt.mean.vec 
+}
+###
+hist(bt.sample.mean.vec,                     # data used for histogram
+     breaks = 14,                            # specify number of vertical bars
+     probability = TRUE,
+       xlab = "Bootstrap sample means",      # change the label of x-axis
+      # add a title to the histogram
+        main="Bootstrap Sampling Distribution \n of Sample Means",
+          cex.main = 0.9,
+       col.main = "navy")   
+lines(density(bt.sample.mean.vec), col = "skyblue", lwd = 2)
+```
+
+Similarly, the sample variance does not need to be computed via asymptotic distribution for such a small dataset. We can input the raw coffee data into an online calculator or computer to get a value for the sample variance and validate this value using bootstrapping. This value of the true sample variance is found to be 5030833.3.
+
+As can be seen below, the bootstrap method validates the true sample variance of 5030833.3.
+
+```{r echo = FALSE}
+
+### Bootstrap sampling begins 
+bt.sample.var.vec = NULL      # define an empty vector to hold sample variance of repeated samples.
+for(i in 1:1000){              # starting for-loop to take bootstrap samples with n = 55
+  ith.bt.sample = sample(x = coffee, # Original sample with 55 coffee data sales
+                       size = 55,             # sample size = 55 is equal to the sample size
+                    replace = TRUE            # MUST use WITH REPLACEMENT!!
+                       )                      # this is the i-th Bootstrap sample
+  bt.sample.var.vec[i] = var(ith.bt.sample) # calculate the mean of i-th bootstrap sample and 
+                                              # save it in the empty vector: sample.bt.mean.vec 
+}
+###
+hist(bt.sample.var.vec,                     # data used for histogram
+     breaks = 14,                            # specify number of vertical bars
+     probability = TRUE,
+       xlab = "Bootstrap sample Variance",      # change the label of x-axis
+      # add a title to the histogram
+        main="Bootstrap Sampling Distribution \n of Sample Variance",
+          cex.main = 0.9,
+       col.main = "navy")   
+lines(density(bt.sample.var.vec), col = "skyblue", lwd = 2)
+```
+
+Note, the online calculator used to calculate raw mean and raw variance for the coffee data was from calculatorsoup.com
