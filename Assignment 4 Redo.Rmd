@@ -1,0 +1,237 @@
+---
+title: 'Assignment 4 - Methods of Moment Estimation'
+author: 'Sabah Khan'
+date: "Due: February 24, 2026"
+output:
+  html_document:           # output document format
+    toc: yes               # add table contents
+    toc_float: yes         # toc_property: floating
+    toc_depth: 4           # depth of TOC headings
+    fig_width: 6           # global figure width
+    fig_height: 4          # global figure height
+    fig_caption: yes       # add figure caption
+    number_sections: yes   # numbering section headings
+    toc_collapsed: yes     # TOC subheading clapsing
+    code_folding: hide     # folding/showing code 
+    code_download: yes     # allow to download complete RMarkdown source code
+    smooth_scroll: yes     # scrolling text of the document
+    theme: lumen           # visual theme for HTML document only
+    highlight: tango       # code syntax hightlighting styles
+  pdf_document: 
+    toc: yes
+    toc_depth: 4
+    fig_caption: yes
+    number_sections: yes
+  word_document:
+    toc: yes
+    toc_depth: '4'
+---
+
+```{css, echo = FALSE}
+div#TOC li {     /* table of content  */
+    list-style:upper-roman;
+    background-image:none;
+    background-repeat:none;
+    background-position:0;
+}
+
+h1.title {    /* level 1 header of title  */
+  font-size: 24px;
+  font-weight: bold;
+  color: DarkRed;
+  text-align: center;
+}
+
+h4.author { /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-weight: bold;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkRed;
+  text-align: center;
+}
+
+h4.date { /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-weight: bold;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+  text-align: center;
+}
+
+h1 { /* Header 1 - and the author and data headers use this too  */
+    font-size: 20px;
+    font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: center;
+}
+
+h2 { /* Header 2 - and the author and data headers use this too  */
+    font-size: 18px;
+    font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: navy;
+    text-align: left;
+}
+
+h3 { /* Header 3 - and the author and data headers use this too  */
+    font-size: 16px;
+    font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: navy;
+    text-align: left;
+}
+
+h4 { /* Header 4 - and the author and data headers use this too  */
+    font-size: 14px;
+  font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: left;
+}
+
+/* Add dots after numbered headers */
+.header-section-number::after {
+  content: ".";
+}
+```
+
+```{r setup, include=FALSE}
+# code chunk specifies whether the R code, warnings, and output 
+# will be included in the output files.
+
+if (!require("knitr")) {                      # use conditional statement to detect
+   install.packages("knitr")                  # whether a package was installed in
+   library(knitr)     
+if (!require("imager"))
+  installed.packages("imager")
+  library(imager)
+  if (!require("latex2exp"))
+  installed.packages("latex2exp")
+  library(latex2exp)
+                                                # your machine. If not, install it and
+}                                             # load it to the working directory.
+#
+knitr::opts_chunk$set(echo = TRUE,            # include code chunk in the output file
+                      warning = FALSE,        # sometimes, you code may produce warning messages,
+                                              # you can choose to include the warning messages in
+                                              # the output file. 
+                      results = TRUE,         # you can also decide whether to include the output
+                                              # in the output file.
+                      message = FALSE,        # suppress messages 
+                      comment = NA            # remove the default leading hash tags in the output
+                      )   
+```
+
+
+# Derive the log-logistic density function from the CDF of the two-parameter log-logistic distribution
+
+Derived by hand:
+
+```{r, fig.align='center', out.width="60%"}
+include_graphics("C:\\Users\\Sabah\\OneDrive\\Documents\\Mathematical Statistics II - Peng\\4-1_by_hand.jpg")
+```
+
+# Distribution of Recovery Time from a Surgeon
+
+Part A -
+
+
+```{r, fig.align='center', out.width="60%"}
+include_graphics("C:\\Users\\Sabah\\OneDrive\\Documents\\Mathematical Statistics II - Peng\\4-2_by_hand.jpg")
+```
+
+```{r}
+
+x<-c(8.23, 12.74, 14.83, 16.61, 18.16, 19.55, 20.80, 21.94, 23.00, 23.98, 24.89, 25.75, 26.56, 
+27.34, 28.08, 28.79, 29.48, 30.15, 30.81, 31.45, 32.08, 32.70, 33.31, 33.92, 34.53, 35.13, 
+35.73, 36.33, 36.93, 37.53, 38.14, 38.75, 39.37, 40.00, 40.64, 41.29, 41.95, 42.63, 43.33, 
+44.05, 44.79, 45.56, 46.36, 47.20, 48.08, 49.02, 50.03, 51.12, 52.32, 53.65) # inputting data values to a vector
+
+m1<-mean(x)
+m2<-mean(x^2) #the first and second sample moments
+
+mom_beta <-function(beta){
+  num <- beta(1 + 2/beta, 1 - 2/beta)
+  den <- (beta(1 + 1/beta, 1 - 1/beta))^2
+  (num / den) - (m2 / m1^2)
+} #inputting the handwritten log-logistic method of moment equation for beta
+
+beta_vals <- seq(1.1, 10, length.out = 200)   
+dframe <- data.frame(x = beta_vals, y = sapply(beta_vals, mom_beta))#identifying intervals, beta has to be greater than 1 for the mean to exist so 1.1 is inputted, with 200 points chosen arbitrarily. The Sapply function takes each beta in beta_vals and evaluates mom_beta for each
+
+
+root <- uniroot(mom_beta, interval = c(2.1, 10))$root
+beta_hat <- root #solving for beta hat using uniroot function in R
+
+
+alpha_hat <- m1 /(beta(1 + 1/beta_hat, 1 - 1/beta_hat)) #find alpha hat using the first MOM equation. This are numerical values, not a function like was defined for beta_hat - this is important to remember for the bootstrapping in part b
+
+cat("   MoM estimates: α_hat =", round(alpha_hat, 3), 
+    ", β_hat =", round(beta_hat, 3), "\n") #outputting alpha and beta estimates
+
+``` 
+
+Part B -
+
+```{r}
+
+get_alpha_hat <- function(x){
+  m1 <- mean(x)
+  m2 <- mean(x^2)
+  mom_beta <- function(beta){
+    num <- beta(1 + 2/beta, 1 - 2/beta)
+    den <- (beta(1 + 1/beta, 1 - 1/beta))^2
+    (num / den) - (m2 / m1^2)
+  }
+  beta_hat <- uniroot(mom_beta, interval = c(2.1, 10))$root
+  alpha_hat <- m1 / beta(1 + 1/beta_hat, 1 - 1/beta_hat)
+  return(alpha_hat) # now alpha hat is computed as a function - which is needed for bootstrapping
+}
+
+
+### Bootstrap sampling begins 
+bt.sample.alpha.vec = NULL      # define an empty vector to hold sample alpha hats of repeated samples.
+for(i in 1:1000){              # starting for-loop to take bootstrap samples with n = 50
+  ith.bt.sample = sample(x = x, # Original sample with 50 recovery times
+                       size = 50,             # sample size = 50 is equal to the sample size
+                    replace = TRUE            # MUST use WITH REPLACEMENT!!
+                       )                      # this is the i-th Bootstrap sample
+  bt.sample.alpha.vec[i] = get_alpha_hat(ith.bt.sample) # calculate the alpha hat of i-th bootstrap sample and 
+                                              # save it in the empty vector: sample.bt.alpha.vec and then do the same with betas
+}
+
+bt.sample.beta.vec = NULL      
+for(i in 1:1000){              
+  ith.bt.sample = sample(x = x, 
+                       size = 50,             
+                    replace = TRUE            
+                       )                      
+  bt.sample.beta.vec[i] = mom_beta(ith.bt.sample)}
+
+###
+hist(bt.sample.alpha.vec,                     # data used for histogram
+     breaks = 14,                            # specify number of vertical bars
+     probability = TRUE,
+       xlab = "Bootstrap sample alpha hats",      # change the label of x-axis
+      # add a title to the histogram
+        main="Bootstrap Sampling Distribution sample alpha hats",
+          cex.main = 0.9,
+       col.main = "navy")   
+lines(density(bt.sample.alpha.vec), col = "skyblue", lwd = 2)
+
+hist(bt.sample.beta.vec,                     # data used for histogram
+     breaks = 14,                            # specify number of vertical bars
+     probability = TRUE,
+       xlab = "Bootstrap sample beta hats",      # change the label of x-axis
+      # add a title to the histogram
+        main="Bootstrap Sampling Distribution sample beta hats",
+          cex.main = 0.9,
+       col.main = "navy")   
+lines(density(bt.sample.beta.vec), col = "skyblue", lwd = 2)
+  
+```
+
+
+The patterns of the density curves on the histograms show that the alpha hats are normally distributed in the bootstrap, but the beta hats are not normally distributed - they might appear to have a chi square distribution with an outlier to the far right, or just not have any underlying distribution at all. 
+
