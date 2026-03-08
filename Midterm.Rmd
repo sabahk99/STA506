@@ -1,0 +1,347 @@
+---
+title: 'Midterm'
+author: 'Sabah Khan'
+date: "Due: March 8th, 2026"
+output:
+  html_document:           # output document format
+    toc: yes               # add table contents
+    toc_float: yes         # toc_property: floating
+    toc_depth: 4           # depth of TOC headings
+    fig_width: 6           # global figure width
+    fig_height: 4          # global figure height
+    fig_caption: yes       # add figure caption
+    number_sections: yes   # numbering section headings
+    toc_collapsed: yes     # TOC subheading clapsing
+    code_folding: hide     # folding/showing code 
+    code_download: yes     # allow to download complete RMarkdown source code
+    smooth_scroll: yes     # scrolling text of the document
+    theme: lumen           # visual theme for HTML document only
+    highlight: tango       # code syntax hightlighting styles
+  pdf_document: 
+    toc: yes
+    toc_depth: 4
+    fig_caption: yes
+    number_sections: yes
+  word_document:
+    toc: yes
+    toc_depth: '4'
+---
+
+```{css, echo = FALSE}
+div#TOC li {     /* table of content  */
+    list-style:upper-roman;
+    background-image:none;
+    background-repeat:none;
+    background-position:0;
+}
+
+h1.title {    /* level 1 header of title  */
+  font-size: 24px;
+  font-weight: bold;
+  color: DarkRed;
+  text-align: center;
+}
+
+h4.author { /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-weight: bold;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkRed;
+  text-align: center;
+}
+
+h4.date { /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-weight: bold;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+  text-align: center;
+}
+
+h1 { /* Header 1 - and the author and data headers use this too  */
+    font-size: 20px;
+    font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: center;
+}
+
+h2 { /* Header 2 - and the author and data headers use this too  */
+    font-size: 18px;
+    font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: navy;
+    text-align: left;
+}
+
+h3 { /* Header 3 - and the author and data headers use this too  */
+    font-size: 16px;
+    font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: navy;
+    text-align: left;
+}
+
+h4 { /* Header 4 - and the author and data headers use this too  */
+    font-size: 14px;
+  font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: left;
+}
+
+/* Add dots after numbered headers */
+.header-section-number::after {
+  content: ".";
+}
+```
+
+```{r setup, include=FALSE}
+# code chunk specifies whether the R code, warnings, and output 
+# will be included in the output files.
+
+if (!require("knitr")) {                      # use conditional statement to detect
+   install.packages("knitr")                  # whether a package was installed in
+   library(knitr)     
+if (!require("imager"))
+  installed.packages("imager")
+  library(imager)
+if (!require("latex2exp"))
+  installed.packages("latex2exp")
+  library(latex2exp)
+if (!require("MASS"))
+  installed.packages("MASS")
+  library(MASS)
+
+  
+                                                # your machine. If not, install it and
+}                                             # load it to the working directory.
+#
+knitr::opts_chunk$set(echo = TRUE,            # include code chunk in the output file
+                      warning = FALSE,        # sometimes, you code may produce warning messages,
+                                              # you can choose to include the warning messages in
+                                              # the output file. 
+                      results = TRUE,         # you can also decide whether to include the output
+                                              # in the output file.
+                      message = FALSE,        # suppress messages 
+                      comment = NA            # remove the default leading hash tags in the output
+                      )   
+```
+
+
+# Question 1
+
+
+```{r, fig.align='center', out.width="60%"}
+knitr::include_graphics("C://Users//Sabah//OneDrive//Documents//Mathematical Statistics II - Peng/midterm1.jpg")
+```
+
+```{r}
+
+x<-c (17.3, 24.8, 8.2, 31.5, 14.1, 42.7, 11.9, 55.3, 21.4, 9.7, 36.2, 18.6, 63.1, 13.2, 28.9, 
+47.5, 19.8, 7.5, 33.4, 52.1, 16.0, 25.9, 38.7, 10.3, 44.2, 22.5, 58.6, 12.8, 30.3, 48.9, 
+20.1, 35.4, 15.7, 60.2, 26.7, 41.3, 18.1, 53.8, 23.9, 46.2, 29.4, 37.6, 14.9, 50.5, 32.8, 
+19.3, 56.7, 11.2, 39.5, 27.1)
+
+
+## Finding the first and 2nd moments
+m1 <- mean(x)
+m2 <- mean(x^2)
+
+mom_sigma_sq <- log(m2) - 2*log(m1)
+mom_mu <- log(m1)-0.5*mom_sigma_sq
+mom_mu_LN <- exp(mom_mu + 0.5*mom_sigma_sq)
+
+cat(
+  "  Sample Moments: m1 = ", m1,
+  ", m2 = ", m2,
+  "\n  MoM estimates: mu_hat = ", round(mom_mu, 3),
+  ", sigma_sq_hat = ", round(mom_sigma_sq, 3),
+  ", mu_LN_hat = ", round(mom_mu_LN, 3),
+  "\n"
+)
+
+```
+
+# Question 2
+
+```{r, fig.align='center', out.width="60%"}
+knitr::include_graphics("C://Users//Sabah//OneDrive//Documents//Mathematical Statistics II - Peng/midterm2.jpg")
+```
+
+```{r, fig.align='center', out.width="60%"}
+knitr::include_graphics("C://Users//Sabah//OneDrive//Documents//Mathematical Statistics II - Peng/midterm3.jpg")
+```
+
+# Question 3
+
+Part 1
+
+```{r}
+
+# Log-Normal log-likelihood function
+lognormal.loglik <- function(params, data) {
+  mu <- params[1]  # passing the parameters
+  sigma_sq <- params[2]
+  
+  
+  ##
+  n <- length(data)   # sample size
+  
+  # Log-likelihood for Log-Normal distribution
+  loglik <- - (n/2) * log(2*pi) - (n/2) * log(sigma_sq) - (1/(2*sigma_sq)) * sum((log(data) - mu)^2)
+  
+  return(-loglik)    # Return negative for minimization
+}
+  
+## Score (gradient) equation
+
+lognormal.score <- function(params, data) {
+  mu <- params[1]
+  sigma_sq <- params[2]
+  
+  n <- length(data)
+  
+  # Gradient for mu
+  grad_mu <- (1/sigma_sq) * sum(log(data) - mu) #score function for mu
+
+# Gradient for sigma_squared
+  grad_sigma_sq <- -(n/(2*sigma_sq)) + (1/(2*sigma_sq^2)) * sum((log(data) - mu)^2) #score function for sigma_sq
+  
+ 
+  return(c(grad_mu, grad_sigma_sq))
+}
+
+
+# Perform optimization
+initial.params <- start <- c(mu = mean(log(x)), sigma_sq = var(log(x))) #starting points from sample data
+
+# Using optim with Nelder-Mead method
+mle.result <- optim(
+  par = initial.params,
+  fn = lognormal.loglik, #removed gradient because I was getting an error message for "ERROR: ABNORMAL_TERMINATION_IN_LNSRCH"
+         data = x,
+         method = "L-BFGS-B", #these next two lines were added with the help of AI. I could not figure out why my mu_LN wouldn't run as a third parameter inside optim and kept getting error codes.  
+  lower   = c(-Inf, 1e-6), 
+  hessian = TRUE,
+  
+
+)
+
+mu_mle       <- mle.result$par["mu"] #These lines were added with the help of AI to determine the mu_LN_hat, which I was struggling with. These lines extract the MLE's
+sigma_sq_mle <- mle.result$par["sigma_sq"]
+
+mu_LN_mle <- exp(mu_mle + 0.5 * sigma_sq_mle) # This line computes the MLE of mu-LN
+
+# Output results
+cat(
+  "MLE Estimates:\n",
+  "  mu_hat       =", round(mu_mle, 3),       "\n",
+  "  sigma_sq_hat =", round(sigma_sq_mle, 3), "\n",
+  "  mu_LN_hat    =", round(mu_LN_mle, 3),    "\n"
+)
+##
+mle.result
+  
+```  
+
+```{r}
+get_mu_LN_mle <- function(data) {
+  
+  initial.params<-c(mu = mean(log(data)), sigma_sq = var(log(data))) #defining the initial parameters for mu_LN_MLE based on the closed form expressions for the score functions
+
+mu_LN_MLE_result <- optim(
+  par = initial.params,
+  fn = lognormal.loglik,
+  gr = lognormal.score,
+  data = data,
+  method = "L-BFGS-B",
+  lower   = c(-Inf, 1e-6), 
+  hessian = FALSE
+  
+)
+  
+  mu_mle       <- mu_LN_MLE_result$par["mu"]
+sigma_sq_mle <- mu_LN_MLE_result$par["sigma_sq"]
+
+
+
+mu_LN_MLE <- exp(mu_mle + 0.5*sigma_sq_mle)
+return(mu_LN_MLE)
+  
+}
+
+
+
+
+
+```  
+
+
+```{r}
+### Bootstrap sampling begins 
+
+bt.sample.vec = NULL      # define an empty vector to hold MLE's of mu_LN's of repeated samples.
+for(i in 1:1000){              # starting for-loop to take bootstrap samples with n = 50
+  ith.bt.sample = sample(x = x, # Original sample with 50 recovery times
+                       size = 50,             # sample size = 50 is equal to the sample size
+                    replace = TRUE            # MUST use WITH REPLACEMENT!!
+                       )                      # this is the i-th Bootstrap sample
+  bt.sample.vec[i] = get_mu_LN_mle(ith.bt.sample) # calculate the mu_LN of i-th bootstrap sample and 
+                                              # save it in the empty vector: bt.sample.vec
+}
+
+
+
+```  
+
+```{r}
+###
+hist(bt.sample.vec,                     # data used for histogram
+     breaks = 20,                            # specify number of vertical bars
+     probability = TRUE,
+       xlab = "Bootstrap sample mu_LN_hats",      # change the label of x-axis
+      # add a title to the histogram
+        main="Bootstrap Sampling Distribution mu_LN_hats",
+          cex.main = 0.9,
+       col.main = "navy")   
+lines(density(bt.sample.vec), col = "skyblue", lwd = 2)
+
+``` 
+
+```{r}
+###
+hist(bt.sample.vec,                     # data used for histogram
+     breaks = 20,                            # specify number of vertical bars
+     probability = TRUE,
+       xlab = "Bootstrap sample mu_LN_hats",      # change the label of x-axis
+      # add a title to the histogram
+        main="Bootstrap Sampling Distribution mu_LN_hats",
+          cex.main = 0.9,
+       col.main = "navy")   
+lines(density(bt.sample.vec), col = "skyblue", lwd = 2)
+
+#MLE estimates from output
+mu_hat   <- 3.269 
+   sigma_sq_hat <- 0.327 
+   mu_LN_hat   <- 30.943
+
+   n <-length(x)
+   
+   #defining asymptotic distribution for mu_LN
+asym <- sqrt(sigma_sq_hat)/sqrt(n)
+
+# Create density plot 
+x_range <- seq(0,50, length.out = 1000)
+asym_curve <- dnorm(x_range, mean = mu_LN_hat, sd = asym)
+
+lines(x_range, asym_curve, col ="red", lwd = 2, lty=2 )
+   
+``` 
+
+
+The sampling distribution of the sample mean of the lognormal distribution using maximum likelihood and bootstrapping appears to be much wider than the asymptotic curve. This makes sense to me intuitively. The MLE bootstrapping histogram is based on sample or empirical data and will have more variability than the asymptoptic curve, which is based on a large N and uses the central limit theorem. It is a theoretical curve based on a large sample, so I expect it to be narrower than the empirical curve. For a finite sample, it is probably better to use empirical data to construct a curve than a theoretical example based on an increasing N. 
+
+
+Extra Credit not attempted - I have not gone over the subject material. 
+
