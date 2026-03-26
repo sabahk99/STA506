@@ -1,0 +1,230 @@
+---
+title: 'Assignment 7 - Constructing Likelihood Ratio Confidence Interval'
+author: 'Sabah Khan'
+date: "Due: March 24, 2026"
+output:
+  html_document:           # output document format
+    toc: yes               # add table contents
+    toc_float: yes         # toc_property: floating
+    toc_depth: 4           # depth of TOC headings
+    fig_width: 6           # global figure width
+    fig_height: 4          # global figure height
+    fig_caption: yes       # add figure caption
+    number_sections: yes   # numbering section headings
+    toc_collapsed: yes     # TOC subheading clapsing
+    code_folding: hide     # folding/showing code 
+    code_download: yes     # allow to download complete RMarkdown source code
+    smooth_scroll: yes     # scrolling text of the document
+    theme: lumen           # visual theme for HTML document only
+    highlight: tango       # code syntax hightlighting styles
+  pdf_document: 
+    toc: yes
+    toc_depth: 4
+    fig_caption: yes
+    number_sections: yes
+  word_document:
+    toc: yes
+    toc_depth: '4'
+---
+
+```{css, echo = FALSE}
+div#TOC li {     /* table of content  */
+    list-style:upper-roman;
+    background-image:none;
+    background-repeat:none;
+    background-position:0;
+}
+
+h1.title {    /* level 1 header of title  */
+  font-size: 24px;
+  font-weight: bold;
+  color: DarkRed;
+  text-align: center;
+}
+
+h4.author { /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-weight: bold;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkRed;
+  text-align: center;
+}
+
+h4.date { /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-weight: bold;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+  text-align: center;
+}
+
+h1 { /* Header 1 - and the author and data headers use this too  */
+    font-size: 20px;
+    font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: center;
+}
+
+h2 { /* Header 2 - and the author and data headers use this too  */
+    font-size: 18px;
+    font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: navy;
+    text-align: left;
+}
+
+h3 { /* Header 3 - and the author and data headers use this too  */
+    font-size: 16px;
+    font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: navy;
+    text-align: left;
+}
+
+h4 { /* Header 4 - and the author and data headers use this too  */
+    font-size: 14px;
+  font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: left;
+}
+
+/* Add dots after numbered headers */
+.header-section-number::after {
+  content: ".";
+}
+```
+
+```{r setup, include=FALSE}
+# code chunk specifies whether the R code, warnings, and output 
+# will be included in the output files.
+
+if (!require("knitr")) {                      # use conditional statement to detect
+   install.packages("knitr")                  # whether a package was installed in
+   library(knitr)     
+if (!require("imager"))
+  installed.packages("imager")
+  library(imager)
+  if (!require("latex2exp"))
+  installed.packages("latex2exp")
+  library(latex2exp)
+                                                # your machine. If not, install it and
+}                                             # load it to the working directory.
+#
+knitr::opts_chunk$set(echo = TRUE,            # include code chunk in the output file
+                      warning = FALSE,        # sometimes, you code may produce warning messages,
+                                              # you can choose to include the warning messages in
+                                              # the output file. 
+                      results = TRUE,         # you can also decide whether to include the output
+                                              # in the output file.
+                      message = FALSE,        # suppress messages 
+                      comment = NA            # remove the default leading hash tags in the output
+                      )   
+```
+
+
+# Construct a 95% asymptotic confidence interval based on the asymptotic sampling distribution of the maximum likelihood estimator (MLE) of θ
+
+
+```{r}
+
+x<-c(3.2,5.8,7.1,4.5,10.3,6.2,8.7,5.1,12.5,6.9, 
+       9.4,5.7,11.8,4.9,9.1,6.5,13.2,7.8,10.6,6.1, 
+       8.9,5.4,12.1,7.3,9.8,5.9,11.4,6.8,10.9,7.5, 
+       4.2,8.3,6.4,14.1,5.6,9.7,7.9,11.1,6.7,10.2, 
+       5.3,8.6,7.2,12.9,6.3,9.3,8.1,13.7,7.6,10.8) #inputting data into a vector
+
+xbar <- mean(x) #calculating the mean from the given data
+
+theta_hat <- (1 - xbar + sqrt(xbar^2 + 6*xbar + 1)) / (2*xbar) #using calculated mean in maximum likelihood function assignment
+
+I_of_theta <- function(theta) { 
+
+  (2 / theta^2) - ((1/ (1+ theta^2))) }
+
+#inputting the Fisher information as a function
+
+I_hat <- I_of_theta(theta_hat) 
+
+var_hat <- 1 / I_hat 
+
+se_hat <- sqrt(var_hat) #assigning some parameters to make CI calculation easier in the next step
+
+z_crit <- qnorm(0.975) #assigning a z critical value to get a 0.05 significance level
+
+wald_ci <- c(theta_hat - z_crit * se_hat, theta_hat + z_crit * se_hat) #using Wald CI formula to calculate CI
+
+cat("95% asymptotic confidence interval based on the asymptotic sampling distribution of the maximum likelihood estimator (MLE) of θ:\n",
+ "Asymptotic CI: [", wald_ci, "] \n")
+
+```
+
+# Construct a 95% likelihood ratio confidence interval for θ
+
+```{r}
+
+S <- sum(x)
+C <- sum(log(1 + x))  #defining C and S for use in log likelihood function
+
+n<-length(x)
+
+fun <- function(theta, n, S, C) {
+  n * log(theta^2 + theta) + C - theta * S #likehood function
+}
+
+score <- function(theta, n, S) {
+  n * (2 * theta + 1) / (theta^2 + theta) - S #score or derivative of likelihood function
+}
+
+```
+
+The following code was written with the help of AI tools. I tried using the code from the lesson but kept getting the following error message: Error in `uniroot()`:
+! f() values at end points not of opposite sign
+
+```{r}
+
+a <- 1e-6
+b <- 1
+sa <- score(a, n, S)
+sb <- score(b, n, S)
+
+if (sa * sb < 0) {
+  theta_hat <- uniroot(score, interval = c(a, b), n = n, S = S)$root
+} else {
+  # grid search to find a sign change
+  grid <- seq(1e-6, 5, length.out = 1000)
+  vals <- sapply(grid, score, n = n, S = S)
+  idx <- which(diff(sign(vals)) != 0)
+  if (length(idx) > 0) {theta_hat <- uniroot(score, interval = c(grid[idx[1]], grid[idx[1]+1]),
+                         n = n, S = S)$root
+  } else {
+    stop("Could not locate a sign-change bracket for the score function in theta>0.")}
+}
+
+thetas <- seq(1e-6, 5, length.out = 1000)
+logL <- sapply(thetas, function(th) fun(th, n, S, C))  # ell defined as n*log(th^2+th) + C - th*S
+
+theta_hat <- theta_hat  
+logL_hat <- fun(theta_hat, n, S, C)
+
+# LR statistic: LR(th) = 2*(logL_hat - logL(th))
+LR <- 2 * (logL_hat - logL)
+
+# 95% cutoff for df=1
+cutoff <- qchisq(0.95, df = 1)
+
+in_interval <- thetas[LR <= cutoff]
+
+# If there are any points, report bounds
+if (length(in_interval) > 0) {
+  LL <- min(in_interval)
+  UL <- max(in_interval)
+  cat("LR-based 95% CI: [", LL, ", ", UL, "]\n", sep = "")
+} else {
+  cat("No LR-based interval found with the given grid. Consider extending the grid or adjusting the model.\n")
+}
+
+```
+
+Considering that theta has to be greater than zero, I would choose the likelihood ratio confidence interval method, although I struggled with the R code for it and had to rely on AI to walk me through the process because I was getting error codes when attempting to do it using the code from the lesson.
