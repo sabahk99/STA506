@@ -1,0 +1,282 @@
+---
+title: 'Assignment 9 - Hypothesis Testing and Power and Sample size Determination'
+author: 'Sabah Khan'
+date: "Due: April 7, 2026"
+output:
+  html_document:           # output document format
+    toc: yes               # add table contents
+    toc_float: yes         # toc_property: floating
+    toc_depth: 4           # depth of TOC headings
+    fig_width: 6           # global figure width
+    fig_height: 4          # global figure height
+    fig_caption: yes       # add figure caption
+    number_sections: yes   # numbering section headings
+    toc_collapsed: yes     # TOC subheading clapsing
+    code_folding: hide     # folding/showing code 
+    code_download: yes     # allow to download complete RMarkdown source code
+    smooth_scroll: yes     # scrolling text of the document
+    theme: lumen           # visual theme for HTML document only
+    highlight: tango       # code syntax hightlighting styles
+  pdf_document: 
+    toc: yes
+    toc_depth: 4
+    fig_caption: yes
+    number_sections: yes
+  word_document:
+    toc: yes
+    toc_depth: '4'
+---
+
+```{css, echo = FALSE}
+div#TOC li {     /* table of content  */
+    list-style:upper-roman;
+    background-image:none;
+    background-repeat:none;
+    background-position:0;
+}
+
+h1.title {    /* level 1 header of title  */
+  font-size: 24px;
+  font-weight: bold;
+  color: DarkRed;
+  text-align: center;
+}
+
+h4.author { /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-weight: bold;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkRed;
+  text-align: center;
+}
+
+h4.date { /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-weight: bold;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+  text-align: center;
+}
+
+h1 { /* Header 1 - and the author and data headers use this too  */
+    font-size: 20px;
+    font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: center;
+}
+
+h2 { /* Header 2 - and the author and data headers use this too  */
+    font-size: 18px;
+    font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: navy;
+    text-align: left;
+}
+
+h3 { /* Header 3 - and the author and data headers use this too  */
+    font-size: 16px;
+    font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: navy;
+    text-align: left;
+}
+
+h4 { /* Header 4 - and the author and data headers use this too  */
+    font-size: 14px;
+  font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: left;
+}
+
+/* Add dots after numbered headers */
+.header-section-number::after {
+  content: ".";
+}
+```
+
+```{r setup, include=FALSE}
+# code chunk specifies whether the R code, warnings, and output 
+# will be included in the output files.
+
+if (!require("knitr")) {                      # use conditional statement to detect
+   install.packages("knitr")                  # whether a package was installed in
+   library(knitr)     
+if (!require("imager"))
+  installed.packages("imager")
+  library(imager)
+  if (!require("latex2exp"))
+  installed.packages("latex2exp")
+  library(latex2exp)
+                                                # your machine. If not, install it and
+}                                             # load it to the working directory.
+#
+knitr::opts_chunk$set(echo = TRUE,            # include code chunk in the output file
+                      warning = FALSE,        # sometimes, you code may produce warning messages,
+                                              # you can choose to include the warning messages in
+                                              # the output file. 
+                      results = TRUE,         # you can also decide whether to include the output
+                                              # in the output file.
+                      message = FALSE,        # suppress messages 
+                      comment = NA            # remove the default leading hash tags in the output
+                      )   
+```
+
+
+# Part a
+
+Since we are only given the average cholesterol reduction value of 29 mg/dL for the current standard drug, but we don't have any information about a sample size or a study for the current standard drug, we can use a one sample t-test for the new drug, using u=25. 
+
+n=5,x¯=29,s=15,μ=25, and α=0.05
+
+Hypotheses:
+
+H0:μ=25 (no effect)
+H1:μ>25 (one-tailed, CholestFix reduces cholesterol by more than 25 mg/dL)
+
+Test Statistic:
+
+n=5, x¯=29, s=15, μ0=25
+
+t=29−25/(15/√5) = 4/6.708 = 0.596
+
+df=n−1=4
+
+tα=0.05, df=4 = 2.132
+
+Decision: since t= 0.596 < 2.132, fail to reject H0
+
+
+Verification using R:
+
+```{r}
+
+# One-sample t-test in R
+set.seed(123)
+simulated_ct <- rnorm(5, mean = 29, sd = 15)
+result <- t.test(simulated_ct, mu = 25, 
+                 alternative = "greater")
+
+# Output
+print(result)
+
+###
+cat("\nManual t-value: 0.596",
+    "\nR t-value:", round(result$statistic, 3),
+    "\nCritical t-value (0.05): 2.132",
+    "\nR p-value:", round(result$p.value, 4))
+
+#I am not sure why the R t-value is so drastically different from my t value. I followed your code for the one sample t-test. However, the p value outputted by R is still  > 0.05, so the decision remains the same - fail to reject null. Indicating that there is not a significant difference between the standard drug and CholestFix. Although R is outputting a mean that is higher than 25, the 95% confidence interval for the estimated mean contains 20.305, so we cannot say CholestFix is different from the standard drug.
+
+```
+Although the R t-value is quite different from the manually calculated t-value, the p-value outputted by R is still  > 0.05, so the decision would be the same whether the calculation is done manually or in R (in this case at least) - fail to reject null. Indicating that there is not a significant difference between the standard drug and CholestFix. Although R is outputting a mean that is higher than 25, the 95% confidence interval for the estimated mean contains 20.305, so we cannot say CholestFix is different from the standard drug.
+
+# Part b
+
+Manually, we can say, H0:μ=μ0,H1:μ>μ0
+
+n=50,α=0.05,σ=15 (one-sided)
+
+λ=29−25/(15/√50)= 7.45 and δ=29−25= 4.
+
+Using software to calculate power:
+
+```{r}
+# Power calculation for one-sample t-test
+power_calc <- power.t.test(n = 50, 
+                          delta = 4,    # true difference between the means in H0 and Ha
+                          sd = 15,      
+                          sig.level = 0.05,
+                          type = "one.sample",
+                          alternative = "one.sided")
+print(power_calc)
+
+```
+The probability that we'd detect a true improvement is 0.585 or about 59%, given a sample size of n=50, indicating that our sample size in part a was far too small to detect a true improvement.
+
+# Part c
+
+```{r}
+# Sample size calculation
+sample_size <- power.t.test(power = 0.80, 
+                            delta = 4,
+                           sd = 15,
+                           sig.level = 0.05,
+                           type = "one.sample",
+                           alternative = "one.sided")
+cat("\nRequired sample size for 80% power:", ceiling(sample_size$n))
+
+```
+The required sample size to detect an effect size of 4 mg/dL with a power of 1−β=0.8 and a significance level of α=0.05 is n = 89, which makes sense because in part B we had a sample size of 50, which is less than 89, and so we were getting power less than 0.80 because our sample size was still not large enough. 
+
+# Part d
+
+```{r}
+# given info
+n = 5
+power = 0.80
+sig = 15
+delta = 4
+lambda = 0.596
+sig.level = 0.05
+##
+crit = qt(0.975, n-1)
+##
+power4 = 1-pt(crit, df = 4, ncp = lambda) + pt(-crit, df = 4, ncp = lambda)
+n =((qnorm(0.975)-qnorm(0.10))*sig/delta)^2 
+data.frame(cbind(power = power, n = n))
+
+```
+
+
+```{r}
+# given info
+n = 50
+power = 0.80
+sig = 15
+delta = 4
+lambda = 1.886
+sig.level = 0.05
+##
+crit = qt(0.975, n-1)
+##
+power50 = 1-pt(crit, df = 49, ncp = lambda) + pt(-crit, df = 49, ncp = lambda)
+n =((qnorm(0.975)-qnorm(0.10))*sig/delta)^2 
+data.frame(cbind(power = power, n = n))
+
+#The sample size required here by manually inputting a power calculation is 148. Again, this differs from the sample size calculated in part c, and I'm not sure why. The only thing I can think of is that in Part C I have specified that it is a one sided test, and here I am not sure how to specify this, or if it even needs to be specified. 
+
+```
+```{r}
+
+#I could not find anything in the lecture note about plotting a power curve. However, I tried my best. The argument for alternative in the code below requires that I specify two sided, so I'm not sure this is the type of graphic you are looking for. 
+
+# Install pwr package if not already installed
+if (!require(pwr)) {
+  install.packages("pwr")
+  library(pwr)
+}
+
+# Parameters
+sigma <- 15          # Known standard deviation
+mu0 <- 25           # Null hypothesis mean
+mu1 <- 29           # Alternative hypothesis mean
+alpha <- 0.05        # Significance level
+n_values <- seq(5, 50, by = 5)  # Sample sizes to evaluate
+
+# Calculate effect size (Cohen's d)
+effect_size <- (mu1 - mu0) / sigma
+
+# Compute power for each sample size
+power_values <- sapply(n_values, function(n) {
+  pwr.t.test(n = n, d = effect_size, sig.level = alpha, type = "one.sample", alternative = "two.sided")$power
+})
+
+# Plot the power curve
+plot(n_values, power_values, type = "b", pch = 19, col = "blue",
+     xlab = "Sample Size (n)", ylab = "Statistical Power",
+     main = "Power Curve for One-Sample t-Test")
+abline(h = 0.8, col = "red", lty = 2)  # Common 80% power threshold
+grid()
+```
