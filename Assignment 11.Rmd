@@ -1,0 +1,396 @@
+---
+title: 'Assignment 11 - Detecting Overfitting and Overfitting Issues'
+author: 'Sabah Khan'
+date: "Due: April 14, 2026"
+output:
+  html_document:           # output document format
+    toc: yes               # add table contents
+    toc_float: yes         # toc_property: floating
+    toc_depth: 4           # depth of TOC headings
+    fig_width: 6           # global figure width
+    fig_height: 4          # global figure height
+    fig_caption: yes       # add figure caption
+    number_sections: yes   # numbering section headings
+    toc_collapsed: yes     # TOC subheading clapsing
+    code_folding: hide     # folding/showing code 
+    code_download: yes     # allow to download complete RMarkdown source code
+    smooth_scroll: yes     # scrolling text of the document
+    theme: lumen           # visual theme for HTML document only
+    highlight: tango       # code syntax hightlighting styles
+  pdf_document: 
+    toc: yes
+    toc_depth: 4
+    fig_caption: yes
+    number_sections: yes
+  word_document:
+    toc: yes
+    toc_depth: '4'
+---
+
+```{css, echo = FALSE}
+div#TOC li {     /* table of content  */
+    list-style:upper-roman;
+    background-image:none;
+    background-repeat:none;
+    background-position:0;
+}
+
+h1.title {    /* level 1 header of title  */
+  font-size: 24px;
+  font-weight: bold;
+  color: DarkRed;
+  text-align: center;
+}
+
+h4.author { /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-weight: bold;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkRed;
+  text-align: center;
+}
+
+h4.date { /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-weight: bold;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+  text-align: center;
+}
+
+h1 { /* Header 1 - and the author and data headers use this too  */
+    font-size: 20px;
+    font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: center;
+}
+
+h2 { /* Header 2 - and the author and data headers use this too  */
+    font-size: 18px;
+    font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: navy;
+    text-align: left;
+}
+
+h3 { /* Header 3 - and the author and data headers use this too  */
+    font-size: 16px;
+    font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: navy;
+    text-align: left;
+}
+
+h4 { /* Header 4 - and the author and data headers use this too  */
+    font-size: 14px;
+  font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: left;
+}
+
+/* Add dots after numbered headers */
+.header-section-number::after {
+  content: ".";
+}
+```
+
+```{r setup, include=FALSE}
+# code chunk specifies whether the R code, warnings, and output 
+# will be included in the output files.
+
+if (!require("knitr")) {                      # use conditional statement to detect
+   install.packages("knitr")                  # whether a package was installed in
+   library(knitr)     
+if (!require("imager"))
+  installed.packages("imager")
+  library(imager)
+  if (!require("latex2exp"))
+  installed.packages("latex2exp")
+  library(latex2exp)
+                                                # your machine. If not, install it and
+}                                             # load it to the working directory.
+#
+knitr::opts_chunk$set(echo = TRUE,            # include code chunk in the output file
+                      warning = FALSE,        # sometimes, you code may produce warning messages,
+                                              # you can choose to include the warning messages in
+                                              # the output file. 
+                      results = TRUE,         # you can also decide whether to include the output
+                                              # in the output file.
+                      message = FALSE,        # suppress messages 
+                      comment = NA            # remove the default leading hash tags in the output
+                      )   
+```
+
+
+# Part a
+
+```{r}
+
+time2event <- c(12.4, 18.7, 25.3, 30.1, 33.5, 35.2, 38.9, 40.3, 42.7, 45.1, 47.6, 49.8, 52.4, 55.0, 
+57.3, 60.2, 62.8, 65.1, 67.9, 70.5, 72.3, 75.6, 78.2, 80.9, 83.4, 85.7, 88.1, 90.6, 
+93.2, 95.8, 98.4, 101.0, 104.5, 107.3, 110.6, 113.2, 116.8, 120.1, 123.7, 127.4,
+130.9, 134.5, 138.2, 142.0, 146.3, 150.7, 155.2, 160.8, 168.4, 175.9)
+
+df <- data.frame(values = time2event)
+# print(df) print if necessary. Not printing for html output.data frame created from vector.
+
+colnames(df) <- "time"
+
+
+x <- df$time
+
+
+
+# Log-likelihood for Weibull distribution
+# lambda = scale, beta = shape
+log_likelihood_weibull <- function(param) {
+  lambda <- param[1]  # scale
+  beta   <- param[2]  # shape
+  
+  # Input validation
+  if (lambda <= 0 || beta <= 0) stop("Parameters must be positive.")
+  if (any(x <= 0)) stop("All observations must be positive.")
+  
+  n <- length(x)
+  sum_logx <- sum(log(x))
+  sum_x_beta <- sum((x / lambda) ^ beta)
+  
+  ll <- n * log(beta) -
+        n * beta * log(lambda) +
+        (beta - 1) * sum_logx -
+        sum_x_beta
+  
+  return(ll)
+}
+
+# Score equations for Weibull distribution
+# lambda = scale, beta = shape
+score_equ_weibull <- function(par) {
+  lambda <- par[1]  # scale
+  beta   <- par[2]  # shape
+  
+  if (lambda <= 0 || beta <= 0) stop("Parameters must be positive.")
+  if (any(x <= 0)) stop("All observations must be positive.")
+  
+  n <- length(x)
+  log_x <- log(x)
+  log_x_over_lambda <- log_x - log(lambda)  # precompute log(x / lambda)
+  x_over_lambda <- x / lambda
+  x_over_lambda_beta <- x_over_lambda ^ beta
+  
+  # Score for beta (shape)
+  score_beta <- (n / beta) -
+                n * log(lambda) +
+                sum(log_x) -
+                sum(x_over_lambda_beta * log_x_over_lambda)
+  
+  # Score for lambda (scale)
+  score_lambda <- (beta / lambda) * (sum(x_over_lambda_beta) - n)
+  
+  return(c(score_lambda, score_beta))
+}
+
+# Fisher Information Matrix for Weibull (lambda = scale, beta = shape)
+FisherInfo_weibull <- function(par) {
+  lambda <- par[1]  # scale
+  beta   <- par[2]  # shape
+  
+  if (lambda <= 0 || beta <= 0) stop("Parameters must be positive.")
+  if (any(x <= 0)) stop("All observations must be positive.")
+  
+  n <- length(x)
+  log_x <- log(x)
+  log_x_over_lambda <- log_x - log(lambda)
+  x_over_lambda <- x / lambda
+  x_over_lambda_beta <- x_over_lambda ^ beta
+  
+  # Second derivatives (observed Hessian components)
+  d2_ll_lambda2 <- -n * beta / (lambda^2) - beta * (beta + 1) / (lambda^2) * sum(x_over_lambda_beta)
+  d2_ll_beta2   <- -n / (beta^2) - sum(x_over_lambda_beta * (log_x_over_lambda ^ 2))
+  d2_ll_lambdabeta <- -n / lambda + (1 / lambda) * sum(x_over_lambda_beta * 
+                                                         (1 + beta * log_x_over_lambda))
+  
+  # Observed Fisher Information = - Hessian
+  I_11 <- -d2_ll_lambda2
+  I_22 <- -d2_ll_beta2
+  I_12 <- -d2_ll_lambdabeta
+  
+  Fisher <- matrix(c(I_11, I_12, I_12, I_22), nrow = 2, byrow = TRUE)
+  return(Fisher)
+}
+
+#Maximum Likelihood Estimate using optim
+
+# Weibull MLE with lambda = scale, beta = shape
+
+# Data
+x <- df$time
+n <- length(x)
+
+
+ # initial values
+###
+ 
+ # Initial values 
+# lambda_init: scale guess (mean)
+# beta_init: shape guess (1.0 corresponds to exponential)
+lambda_init <- mean(x)
+beta_init   <- 1.0 
+
+# Run optim for Weibull MLE
+result <- optim(
+  par = c(lambda_init, beta_init),   # initial guesses: (lambda, beta)
+  fn = log_likelihood_weibull,       # log-likelihood function
+  gr = score_equ_weibull,            # score function (gradient)
+  method = "BFGS",                    # quasi-Newton method
+  hessian = TRUE,                     # return Hessian matrix
+  control = list(
+    fnscale = -1,    # maximize instead of minimize
+    maxit = 1000,    # stopping rule 1: max iterations
+    reltol = 1e-8,   # stopping rule 2: precision control
+    REPORT = 10      # print progress every 10 iterations
+  )
+)
+
+# View results
+result
+ 
+Fisher <- FisherInfo_weibull(result$par)
+Fisher
+
+# Which is consistent with the hessian matrix in the output of optim()
+
+varcov <- solve(-result$hessian)   # solve() is a matrix inversion function
+varcov
+
+#The variance and covariance matrix can be approximated by inverting the Fisher Information Matrix or the inverse of the negative #Hessian matrix returned from optim()
+
+MLE <- result$par
+MLE
+
+```
+The MLE's for λ and β are 99.01 and 2.21
+
+
+# Parts b, c, and d
+
+```{r}
+
+# Log-likelihood for Weibull with beta = 1 (Exponential case)
+loglik_weibull_beta1 <- function(lambda) {
+  if (lambda <= 0) stop("Scale parameter lambda must be positive.")
+  ll <- -n * log(lambda) - sum(x) / lambda
+  return(ll)
+}
+
+# Score function (gradient) for Weibull with beta = 1
+score_weibull_beta1 <- function(lambda) {
+  if (lambda <= 0) stop("Scale parameter lambda must be positive.")
+  score <- -n / lambda + sum(x) / (lambda^2)
+  return(score)
+}
+
+#data
+x <- df$time
+n <- length(x)
+
+# Optimization
+result0 <- optim(
+  par = mean(x),                     # initial guess for lambda
+  fn = loglik_weibull_beta1,          # log-likelihood function
+  gr = score_weibull_beta1,           # score function
+  method = "BFGS",                    # quasi-Newton method
+  hessian = TRUE,                     # return Hessian
+  control = list(
+    fnscale = -1,                     # maximize instead of minimize
+    maxit = 1000,                      # max iterations
+    reltol = 1e-8,                     # convergence tolerance
+    REPORT = 10                        # print progress every 10 iterations
+  )
+)
+
+result0
+
+```
+The restrictive MLE for lambda (when beta = 1 and we are dealing with an exponential distribution) is 87.61
+
+
+
+ 
+```{r}
+
+x <- df$time
+ n = length(x)
+ ##
+ LR = -2*(loglik_weibull_beta1(result0$par) - log_likelihood_weibull(result$par))
+ LR
+ 
+ # The above is the likelihood ratio statistic
+ 
+ pval <- 1 - pchisq(LR, df = 1)
+pval
+ 
+```
+
+The p value is tiny, "4.373534e-09," therefore we reject the null hypothesis that beta = "1". 
+ 
+```{r}
+# Wald test
+alpha.hat  <- result$par[1]     # based on the unrestricted likelihood estimation
+se.alpha <- sqrt(varcov[1, 1])  # the square root of the top-left diagonal value
+W <- (alpha.hat - 1)^2/(se.alpha)^2   # Wald test statistic
+##
+pval.W <- 1 - pchisq(W, df = 1)
+c(W = W, pval.W = pval.W)
+
+```
+
+The p value for the Wald test is also zero, implying the rejection of the null hypothesis.
+
+# Part e
+
+The two tests generated the same results - namely, that the recommended model for the data is a Weibull model, whose scale parameter is not fixed at 1 (and is therefore not exponentially distributed data), and whose maximum likelihood estimate for scale parameter is 99.01 and whose maximum likelihood estimate for scale parameter is 2.21.
+
+Below is a density curve for the data. Time to failure has a right skewed distribution, with the highest likelihood of failure occurring at between 70 and 90 hours
+
+```{r}
+x <- df$time
+
+result <- optim(
+  par = c(mean(x), 1.0),             # initial guesses
+  fn = log_likelihood_weibull,       # log-likelihood function
+  gr = score_equ_weibull,            # score function
+  method = "BFGS",
+  hessian = TRUE,
+  control = list(fnscale = -1)
+)
+
+lambda_hat <- result$par[1]  # MLE scale
+beta_hat   <- result$par[2]  # MLE shape
+
+# Histogram of data
+hist(x,
+     breaks = 14,
+     probability = TRUE,  # scale to density
+     xlab = "Observed times",
+     main = "Weibull Fit to Data",
+     col = "lightgray",
+     border = "white")
+
+# Add Weibull density curve
+curve(dweibull(x, shape = beta_hat, scale = lambda_hat),
+      from = min(x), to = max(x),
+      col = "red", lwd = 2, add = TRUE)
+
+# Add kernel density for comparison
+lines(density(x), col = "blue", lwd = 2, lty = 2)
+
+# Legend
+legend("topright",
+       legend = c("Weibull MLE", "Kernel Density"),
+       col = c("red", "blue"),
+       lwd = 2, lty = c(1, 2))
+
+```
