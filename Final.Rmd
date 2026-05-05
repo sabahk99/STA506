@@ -1,0 +1,800 @@
+---
+title: "STA 506 Final Examination"
+author: "Sabah Khan"
+date: " Due: May 5, 2026 "
+output:
+  html_document: 
+    toc: yes
+    toc_depth: 4
+    toc_float: yes
+    number_sections: no
+    toc_collapsed: yes
+    code_folding: hide
+    code_download: yes
+    smooth_scroll: yes
+    highlight: monochrome
+    theme: spacelab
+  pdf_document: 
+    toc: yes
+    toc_depth: 4
+    fig_caption: yes
+    number_sections: no
+    fig_width: 3
+    fig_height: 3
+  word_document: 
+    toc: yes
+    toc_depth: 4
+    fig_caption: yes
+    keep_md: yes
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{css, echo = FALSE}
+#TOC::before {
+  content: "Table of Contents";
+  font-weight: bold;
+  font-size: 1.2em;
+  display: block;
+  color: navy;
+  margin-bottom: 10px;
+}
+
+
+div#TOC li {     /* table of content  */
+    list-style:upper-roman;
+    background-image:none;
+    background-repeat:none;
+    background-position:0;
+}
+
+h1.title {    /* level 1 header of title  */
+  font-size: 22px;
+  font-weight: bold;
+  color: DarkRed;
+  text-align: center;
+  font-family: "Gill Sans", sans-serif;
+}
+
+h4.author { /* Header 4 - and the author and data headers use this too  */
+  font-size: 15px;
+  font-weight: bold;
+  font-family: system-ui;
+  color: navy;
+  text-align: center;
+}
+
+h4.date { /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-weight: bold;
+  font-family: "Gill Sans", sans-serif;
+  color: DarkBlue;
+  text-align: center;
+}
+
+h1 { /* Header 1 - and the author and data headers use this too  */
+    font-size: 20px;
+    font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: center;
+}
+
+h2 { /* Header 2 - and the author and data headers use this too  */
+    font-size: 18px;
+    font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: navy;
+    text-align: left;
+}
+
+h3 { /* Header 3 - and the author and data headers use this too  */
+    font-size: 16px;
+    font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: navy;
+    text-align: left;
+}
+
+h4 { /* Header 4 - and the author and data headers use this too  */
+    font-size: 14px;
+  font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: left;
+}
+
+/* Add dots after numbered headers */
+.header-section-number::after {
+  content: ".";
+
+body { background-color:white; }
+
+.highlightme { background-color:yellow; }
+
+p { background-color:white; }
+
+}
+```
+
+```{r setup, include=FALSE}
+# code chunk specifies whether the R code, warnings, and output 
+# will be included in the output files.
+if (!require("knitr")) {
+   install.packages("knitr")
+   library(knitr)
+}
+if (!require("pander")) {
+   install.packages("pander")
+   library(pander)
+}
+if (!require("ggplot2")) {
+  install.packages("ggplot2")
+  library(ggplot2)
+}
+if (!require("tidyverse")) {
+  install.packages("tidyverse")
+  library(tidyverse)
+}
+if (!require("boot")) {
+  install.packages("boot")
+  library(boot)
+}
+if (!require("plotly")) {
+  install.packages("plotly")
+  library(plotly)
+}
+####
+knitr::opts_chunk$set(echo = TRUE,       # include code chunk in the output file
+                      warning = FALSE,   # sometimes, you code may produce warning messages,
+                                         # you can choose to include the warning messages in
+                                         # the output file. 
+                      results = TRUE,    # you can also decide whether to include the output
+                                         # in the output file.
+                      message = FALSE,
+                      comment = NA
+                      )  
+```
+ 
+ \
+
+## Part A: Methodological Derivations
+
+\
+
+### **Problem A1**: 
+Show that the density function of the Kumaraswamy distribution is
+
+$$
+f(x; a, b) = ab \, x^{a-1} (1 - x^a)^{b-1}.
+$$
+The PDF is the derivative of the CDF:
+
+$$
+f(x;a,b)= d/dx, F(x;a,b) = d/dx,  [1−(1−x^a) ^b] 
+$$
+The derivative of the constant 1 is 0, so:
+$$
+f(x;a,b)=−d/dx(1−x^a) ^b
+$$
+Applying the chain rule:
+
+= −b(1−x^a) ^ (b−1) (d/dx(1−x^a)) = 
+
+d/dx (1−x^a)= −ax ^(a−1)
+
+Substituting back:
+f(x;a,b) = −b (1−x^a) ^ (b−1) (−ax ^ (a−1))
+
+The two negatives cancel:
+
+f(x;a,b) = [(ab) x^ (a−1)] [(1−x ^a) ^ (b−1)]
+
+\
+
+### **Problem A2**: 
+Let $\{x_1, x_2, \cdots, x_n \}$ be an i.i.d. random sample taken from a population that follows the aove 2-parameter Kumaraswamy distribution. Write out the loglikelihood function of $a$ and $b$, denoted by $\ell(a,b)$, based on the above random sample and **derive** the gradient vector $[\ell_a^\prime(a,b), \ell_b^\prime(a,b)]$, the first order partial derivative of the log-likelihood with respect to parameters $a$ and $b$.
+
+Take the natural log of the pdf:
+
+ℓ(a,b)=i=1∑n​log[abx^(a−1) (1−x^a) ^ (b−1)]
+
+Expanding using log properties:
+
+ℓ(a,b)=nloga+nlogb+(a−1)i=1∑n logx +(b−1)i=1∑n log(1−(x^a))
+
+Partial derivative with respect to b:
+
+=(n/b) + i=1∑n log(1−(x^a))
+
+Partial derivative with respect to a:
+
+=(n/a) + i=1∑n logx +(b−1) i=1∑n ∂/∂a log(1−(x^a))
+
+Applying the chain rule to the last term:
+
+∂/∂a log(1−(x^a)) = (-x^a(log x))/(1−(x^a))
+
+Substituting back:
+
+n/a + i=1∑n logx - (b−1) i=1∑n (x^a(log x))/(1−(x^a))
+
+\
+
+### **Problem A3**: 
+Based on the gradients functions obtained in the above problem A2, **derive** the observed Fisher Information matrix (i.e, the negative Hessian Matrix).
+
+The Observed Fisher Information Matrix is the negative Hessian:
+
+-[ℓaa′′​ℓab′′
+  ℓba′′​ℓbb′′]
+
+The gradients derived in A2 were:
+
+for b: (n/b) + i=1∑n log(1−(x^a))
+
+for a: (n/a) + i=1∑n logx - (b−1) i=1∑n (x^a(log x))/(1−(x^a))
+
+ℓbb′′ = ∂/∂b [(n/b) + i=1∑n log(1−(x^a))] = -n/b^2
+
+differentiate ℓb′ with respect to a:
+
+ℓab′′ = ∂/∂a [(n/b) + i=1∑n log(1−(x^a)) ] = i=1∑n (-x^a(log x))/(1−(x^a))
+
+differentiate ℓa′ with respect to a:
+
+ℓaa′′ = ∂/∂a [(n/a) + logx - (b−1) i=1∑n (x^a(log x))/(1−(x^a))]
+
+The first two terms give −n/a^2. For the last term, the quotient rule was applied:
+
+∂/∂a (x^a(log x)) / (1−(x^a)) = [(1−(x^a) (x^a)(logx) ^2)-[(x^a(log x))(-x^a(log x))]]/((1−(x^a) ^2)
+
+= [(x^a)(logx) ^2) (1−(x^a) + ((x^2a)(logx) ^2)]/ ((1−(x^a) ^2)
+
+ℓaa′′ = -n/a^2 - (b-1) i=1∑n [(x^a)(logx) ^2) / ((1−(x^a) ^2)]
+
+So the matrix is 
+
+
+-[ℓaa′′​ℓab′′
+  ℓba′′​ℓbb′′]
+  
+  =
+  
+[(n/a^2) + (b-1) i=1∑n [(x^a)(logx) ^2) / ((1−(x^a) ^2)] ,  i=1∑n (x^a)(log x)))/1−(x^a),
+i=1∑n (x^a)(logx) / 1−(x^a), n/b^2 ]
+
+
+\
+
+### **Problem A4**: 
+
+Consider power distribution $F(x) = x^a, (a >0 \quad \text{ and }\quad x \in (0,1))$, a special case of the Kumaraswamy distribution with $b = 1$, and a random sample from this distribution $\{ x_1, x_2, \cdots, x_n\}$. **Derive** the MLE and MME of $a$ respectively. [*Hint: To find the MME, you need to compute the moment of the power distribution; that is, $E[X^k] = \int_0^1 x^k F'(x) dx$. Note that both the MLE and the MME have closed-form expressions.*]
+
+When b=1, the Kumaraswamy PDF is:
+
+f(x;a)=ax^(a-1), x∈ (0,1), a>0 
+
+The log-likelihood from A2 with b=1 is:
+
+ℓ(a)=nloga+(a−1) i=1∑n logx + 0
+
+since (b−1) ∑log(1-x^a) = 0 when b=1.
+
+Taking the derivative and setting equal to zero:
+
+ℓ′(a)= (n/a) + i=1∑n logx = 0
+
+solving for a:
+
+n/a = - i=1∑n logx
+
+MLE of a = -n/(i=1∑n logx)
+
+
+E[X^k]=∫ x^k F′(x)dx (integral is from zero to one)
+
+E[X]=∫xax^(a-1)dx (integral is from zero to one) = a∫x^(a)dx= (integral is from zero to one)
+
+= a (x^(a+1)/a+1) from zero to one, = a/a+1
+
+Method of Moments (MME), E[X] = mean x
+
+a/a+1 = mean x
+
+a = mean x(a+1) = mean x(a) + (mean x)
+
+= a - mean x(a) = mean x
+
+a(1-mean x) = mean x
+
+MME for a = [(mean x)/(1-mean x)]
+\
+
+### **Problem A5**:
+
+Using the same setting as in **Problem A4**, find the asymptotic (Wald) confidence interval for $a$. [*Hint: Compute the Fisher information for $a$, then take its reciprocal to obtain the variance*.]
+
+With b=1, the log-likelihood is:
+
+ℓ(a)=nloga+(a−1) i=1∑n logx
+
+The second derivative is:
+
+ℓ′′(a)= -n/(a^2)
+
+so the Fisher information is −ℓ′′(a) = n/(a^2)
+
+The hint says that the variance is the reciprocal of the Fisher information so the variance = (a^2)/n
+
+and the standard deviation is a/sqrt n
+
+The Wald Confidence interval is a ± z α/2(sd(a) where z α/2 is the upper critical value of the standard normal
+
+\
+
+### **Problem A6**:
+
+Using the same setting as in **Problem A4**, perform a likelihood ratio test for the hypothesis $H_0 :a=1$ (i.e., the power distribution reduces to a uniform distribution). [*Hint: Evaluate the log-likelihood function at the maximum likelihood estimate $\hat{a}$ and at $a=1$, then use these values to construct the LRT test statistic.*]
+
+From A2 with b=1:
+
+ℓ(a)=nloga+(a−1) i=1∑n logx
+
+Log-likelihood at the MLE a-hat:
+
+subsituting a-hat = -n/(i=1∑n logx). Let T = i=1∑n logx
+
+ℓ(a-hat)=nlog(-n/T)+((-n/T) - 1)T
+
+=nlog(-n/T)-n-T
+
+Log-likelihood under H0:a=1:
+
+ℓ(1)=nlog(1)+(1−1)i=1∑n logx = 0
+
+LRT Statistic By Wilks' theorem:
+
+Λ=2[ℓ(a^)−ℓ(1)]=2[nlog(-n/T)-n-T-0]
+
+Λ=2[nlog(-n/(i=1∑n logx))-n- i=1∑n logx]
+
+under H0 with p-value =P(χ12>Λ) where χ12 is chi-square with 1 degree of freedom
+
+\
+
+## Part B: Numerical Analysis
+
+**Working Dataset**: A small reservoir supplies water to a town. During the dry season (50 days), engineers record the fraction of usable storage filled each morning. Values near 0 mean the reservoir is nearly empty; values near 1 mean it's full. The distribution tends to be right‑skewed (mostly low levels due to drought) but with occasional replenishment.
+
+The following 50 data points (ordered for clarity) represent the daily proportion of usable storage:
+
+```
+0.12, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.20, 0.21, 0.22,
+0.23, 0.24, 0.25, 0.26, 0.27, 0.28, 0.29, 0.30, 0.31, 0.32,
+0.33, 0.34, 0.35, 0.36, 0.37, 0.38, 0.39, 0.40, 0.41, 0.42,
+0.43, 0.44, 0.45, 0.46, 0.47, 0.48, 0.49, 0.50, 0.51, 0.52,
+0.53, 0.54, 0.55, 0.56, 0.57, 0.58, 0.59, 0.60, 0.61, 0.78
+```
+
+\
+
+### **Problem B1**:
+
+Fit the Kumaraswamy distribution to the above data. Use the derivations in **Problem A2** to find the MLE of $a$ and $b$. Please copy the key formulas before coding.
+
+```{r}
+
+reservoir <- c(
+  0.12, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.20, 0.21, 0.22,
+  0.23, 0.24, 0.25, 0.26, 0.27, 0.28, 0.29, 0.30, 0.31, 0.32,
+  0.33, 0.34, 0.35, 0.36, 0.37, 0.38, 0.39, 0.40, 0.41, 0.42,
+  0.43, 0.44, 0.45, 0.46, 0.47, 0.48, 0.49, 0.50, 0.51, 0.52,
+  0.53, 0.54, 0.55, 0.56, 0.57, 0.58, 0.59, 0.60, 0.61, 0.78
+)
+
+n <- length(reservoir)
+
+# Log-likelihood from A2
+# l(a,b) = n*log(a) + n*log(b) + (a-1)*sum(log(x)) + (b-1)*sum(log(1 - x^a))
+
+kuma.loglik <- function(params, data) {
+  a <- params[1]
+  b <- params[2]
+  n <- length(data)
+  
+#return -Inf for invalid parameter values
+  if (a <= 0 || b <= 0) return(-Inf)
+  
+#x^a must be positive 
+  
+  inner <- 1 - data^a
+  if (any(inner <= 0)) return(-Inf)
+
+  loglik <- n * log(a) +
+            n * log(b) +
+            (a - 1) * sum(log(data)) +
+            (b - 1) * sum(log(inner))
+
+  return(loglik)
+}
+
+# Gradient vector from A2:
+
+# dl/da = n/a + sum(log(x)) - (b-1)*sum(x^a*log(x)/(1-x^a))
+# dl/db = n/b + sum(log(1 - x^a))
+
+kuma.score <- function(params, data) {
+  a <- params[1]
+  b <- params[2]
+  n <- length(data)
+
+  xa      <- data^a                    # xi^a for all i
+  log.x   <- log(data)                 # log(xi) for all i
+  inner   <- 1 - xa                    # 1 - xi^a for all i
+  
+  # Partial derivative w.r.t. a
+  grad_a <- n / a +
+            sum(log.x) -
+            (b - 1) * sum(xa * log.x / inner)
+  
+  # Partial derivative w.r.t. b
+  grad_b <- n / b +
+            sum(log(inner))
+
+  return(c(grad_a, grad_b))
+}
+
+# Initial Values
+
+# Using MME of power distribution for a from A4: a = mean x/(1-mean x)
+# Using b = 1 as starting point
+
+x_bar       <- mean(reservoir)
+a_init      <- x_bar / (1 - x_bar)    # MME estimate for a
+b_init      <- 1                       # start for b
+init.params <- c(a = a_init, b = b_init)
+
+cat("Initial values -> a:", round(a_init, 4), "  b:", round(b_init, 4), "\n")
+
+# Running optim with gradient
+
+mle.result <- optim(
+  par     = init.params,
+  fn      = kuma.loglik,
+  gr      = kuma.score,
+  data    = reservoir,
+  method  = "L-BFGS-B",               
+  lower   = c(1e-6, 1e-6),            #a > 0, b > 0
+  hessian = TRUE,                      
+  control = list(
+    fnscale = -1,                      
+    maxit   = 1000,
+    abstol  = 1e-8,
+    trace   = FALSE
+  )
+)
+
+
+Hess  <- mle.result$hessian
+covar <- solve(-Hess)                  # invert negative Hessian
+
+
+a_hat <- mle.result$par["a"]
+b_hat <- mle.result$par["b"]
+se_a  <- sqrt(covar[1, 1])            # standard error of a_hat
+se_b  <- sqrt(covar[2, 2])            # standard error of b_hat
+
+cat("\n MLE Results \n",
+"a_hat:", round(a_hat, 4), "  SE:", round(se_a, 4), "\n",
+"b_hat:", round(b_hat, 4), "  SE:", round(se_b, 4), "\n")
+
+
+
+```
+
+\
+
+### **Problem B2**:
+
+Fit the **power distribution** to the above data using the derived  of $a$ obtained in **Problem A4** to test the following hypothesis using likelihood ratio procedure ar significance level $\alpha = 0.05$:
+
+$$
+H_0: b = 1 \quad \text{ versus } \quad H_a: b \ne 1.
+$$
+
+State the statistical decision clearly. What is the practical implication of the testing result?
+
+```{r}
+
+
+# Restricted MLE under H0: b = 1 (power distribution)
+# Closed-form MLE from A4: a_hat = -n / sum(log(x))
+# Restricted MLE of a (closed-form from A4)
+
+# MLE of Power distribution (Kumaraswamy with b = 1)
+
+power.mle <- function(data) {
+  n <- length(data)
+  a_hat <- -n / sum(log(data))
+  return(a_hat)
+}
+
+a_hat <- power.mle(reservoir)        
+cat("H0 (b = 1) \n", "a_hat (MLE under H0):", round(a_hat, 4), "\n")
+
+
+# Restricted log-likelihood at (a_hat, b = 1) 
+# From A6: l(a, b=1) = n*log(a) + (a-1)*sum(log(x))
+# the (b-1)*sum(log(1 - x^a)) term vanishes when b = 1
+
+ll_restricted <- kuma.loglik(c(a_hat, 1), reservoir)
+cat("Log-likelihood at (a_hat, b=1):", round(ll_restricted, 4), "\n")
+
+
+# Unrestricted MLE of (a, b) from B1
+
+x_bar       <- mean(reservoir)
+a_init      <- x_bar / (1 - x_bar)    # MME initial value for a
+b_init      <- 1                       # start for b
+
+mle.result <- optim(
+  par     = c(a = a_init, b = b_init),
+  fn      = kuma.loglik,
+  gr      = kuma.score,
+  data    = reservoir,
+  method  = "L-BFGS-B",
+  lower   = c(1e-6, 1e-6),            # a > 0, b > 0
+  hessian = TRUE,
+  control = list(
+    fnscale = -1,                      
+    maxit   = 1000,
+    abstol  = 1e-8,
+    trace   = FALSE
+  )
+)
+
+# Unrestricted MLEs and log-likelihood 
+a_hat <- mle.result$par["a"]
+b_hat <- mle.result$par["b"]
+ll_unrestricted <- mle.result$value   # maximized log-likelihood
+
+cat("\n Unrestricted MLE (Kumaraswamy) \n", "a_hat:", round(a_hat, 4), "b_hat:", round(b_hat, 4), "\n",
+
+
+"Log-likelihood at (a_hat, b_hat):", round(ll_unrestricted, 4), "\n")
+
+
+# LRT Statistic
+
+# Lambda = 2 * [l(a_hat, b_hat) - l(a_hat, 1)] ~ chi^2(1)
+
+alpha     <- 0.05               # significance level
+df        <- 1                  # 1 degree of freedom
+
+LRT <- 2 * (ll_unrestricted - ll_restricted)
+
+# Critical value and p-value
+crit.val  <- qchisq(1 - alpha, df = df)
+p.val     <- 1 - pchisq(LRT, df = df)
+
+
+
+cat("\n Likelihood Ratio Test: H0: b = 1 vs Ha: b does not = 1 \n",
+"LRT statistic:          ", round(LRT, 4),     "\n",
+"Critical value (df=1):  ", round(crit.val, 4),"\n",
+"p-value:                ", round(p.val, 4),   "\n")
+
+
+```
+Reject the null hypothesis (that b=1. This does not fit a power distribution). 
+
+\
+
+### **Problem B3**:
+
+Use the procedure and code from **Problem B1** to estimate the MLEs of $a$ and $b$, and then complete the following analyses:
+
+(1). Obtain the bootstrap sampling distributions of $\hat{a}$ and $\hat{b}$ and plot each distribution using **Gaussian kernel density curves**.
+
+(2).  Construct both the $95\%$ **bootstrap confidence interval** and the **Wald confidence interval** for $b$. Do these intervals agree with the results obtained in **Problem B2**? [*Compute the standard error of $\hat{b}$ using the observed Fisher information matrix, i.e., the inverse of the negative Hessian obtained from optim()*]
+
+(3). Based on the bootstrap sampling distributions from part (1) of this problem, assess whether the validity of the Wald confidence interval is supported.
+
+```{r}
+
+# Initial values: MME for a, neutral start for b
+x_bar       <- mean(reservoir)
+a_init      <- x_bar / (1 - x_bar)
+b_init      <- 1
+
+# Run optim to get MLEs 
+mle.result <- optim(
+  par     = c(a = a_init, b = b_init),
+  fn      = kuma.loglik,
+  gr      = kuma.score,
+  data    = reservoir,
+  method  = "L-BFGS-B",
+  lower   = c(1e-6, 1e-6),
+  hessian = TRUE,
+  control = list(fnscale = -1, maxit = 1000, abstol = 1e-8, trace = FALSE)
+)
+
+a_hat <- mle.result$par["a"]     # unrestricted MLE of a
+b_hat <- mle.result$par["b"]     # unrestricted MLE of b
+
+cat(" Original MLEs \n",
+"a_hat:", round(a_hat, 4), "\n",
+"b_hat:", round(b_hat, 4), "\n")
+
+#Wald CI for b using observed Fisher Information
+
+# Covariance matrix from negative Hessian 
+Hess     <- mle.result$hessian         # Hessian from optim
+covar    <- solve(-Hess)               # invert negative Hessian for covariance matrix
+se_b     <- sqrt(covar[2, 2])         # SE of b_hat
+
+# 95% Wald CI for b
+z_crit      <- qnorm(0.975)            # 1.96 for 95% CI
+wald_ci_b   <- c(
+  lower = b_hat - z_crit * se_b,
+  upper = b_hat + z_crit * se_b
+)
+
+cat("\n Wald CI for b \n",
+"SE of b_hat:", round(se_b, 4), "\n",
+"95% Wald CI: (", round(wald_ci_b["lower.b"], 4),
+    ",", round(wald_ci_b["upper.b"], 4), ")\n")
+
+```
+
+These intervals agree with B2 because B2 confirmed that b does not equal 1. The Wald CI ranges from about 3 to about 12. 
+
+```{r}
+
+set.seed(123)  #
+B <- 2000      # number of bootstrap replicates
+
+
+# bootstrap sample
+kuma.mle.boot <- function(data, indices) {
+  boot.sample <- data[indices]  
+
+  # Attempt MLE on bootstrap sample; return NA if optim did not converge
+  fit <- optim(
+    par     = c(a = x_bar / (1 - x_bar), b = 1),
+    fn      = kuma.loglik,
+    gr      = kuma.score,
+    data    = boot.sample,
+    method  = "L-BFGS-B",
+    lower   = c(1e-6, 1e-6),
+    control = list(fnscale = -1, maxit = 1000, abstol = 1e-8, trace = FALSE)
+  )
+
+  # optim() returns convergence = 0 on success, non-zero on failure
+  if (fit$convergence == 0) {
+    return(fit$par)          # return c(a_hat, b_hat)
+  } else {
+    return(c(NA, NA))        # return NA pair if optim() failed
+  }
+}
+
+boot.result <- boot(
+  data      = reservoir,
+  statistic = kuma.mle.boot,
+  R         = B
+)
+
+# Extract bootstrap distributions for a and b 
+boot_a <- boot.result$t[, 1]          # bootstrap a_hat values
+boot_b <- boot.result$t[, 2]          # bootstrap b_hat values
+
+
+# bootstrap distributions with KDE
+par(mfrow = c(1, 2), mar = c(4, 4, 3, 1))
+
+# Bootstrap distribution of a_hat
+plot(density(boot_a, kernel = "gaussian"),
+     main = "Bootstrap Distribution of a_hat",
+     xlab = "a_hat", ylab = "Density",
+     lwd = 2, col = "blue")
+abline(v = a_hat, col = "red", lwd = 2, lty = 2)   # original MLE
+abline(v = mean(boot_a), col = "green", lwd = 2, lty = 3) # bootstrap mean
+legend("topright",
+       legend = c("KDE", "Original MLE", "Bootstrap Mean"),
+       col    = c("blue", "red", "green"),
+       lwd    = 2, lty = c(1, 2, 3), cex = 0.8)
+
+# Bootstrap distribution of b_hat
+plot(density(boot_b, kernel = "gaussian"),
+     main = "Bootstrap Distribution of b_hat",
+     xlab = "b_hat", ylab = "Density",
+     lwd = 2, col = "orange")
+abline(v = b_hat, col = "red", lwd = 2, lty = 2)   # original MLE
+abline(v = mean(boot_b), col = "green", lwd = 2, lty = 3) # bootstrap mean
+legend("topright",
+       legend = c("KDE", "Original MLE", "Bootstrap Mean"),
+       col    = c("orange", "red", "green"),
+       lwd    = 2, lty = c(1, 2, 3, 4), cex = 0.8)
+
+```
+
+```{r}
+
+alpha <- 0.05
+
+# Percentile bootstrap CI for b 
+boot_ci_b <- boot.ci(boot.result, conf = 1 - alpha,
+                     type = "perc", index = 2)   # index=2 -> b
+
+# Extract percentile CI bounds
+perc_ci_b <- boot_ci_b$percent[4:5]   # [lower, upper]
+
+cat("Bootstrap Percentile CI: (",
+    round(perc_ci_b[1], 4), ",", round(perc_ci_b[2], 4), ")\n")
+
+
+```
+
+These intervals agree with B2 because B2 confirmed that b does not equal 1. The percentile CI ranges from about 5 to about 16. 
+\
+
+Based on the bootstrap sampling distributions, the validity of the Wald confidence interval is supported. The KDE graph shows a mean of around 7 which is what the original MLE was, and this point estimate also falls within the Wald CIs. Furthermore, looking at the graph, the CI values of 3 for upper and 12 for lower are plausible. 
+
+### **Problem B4**:
+
+In the introduction to the working model for this exam, the Kumaraswamy distribution reduces to the uniform distribution on (0,1). In this problem, we perform a **likelihood ratio test** for the following hypothesis to assess whether the data come from the uniform distribution on (0,1):
+
+$$
+H_0: a = 1\quad \& \quad b = 1\quad \text{ versus } \quad H_a: a \ne 1 \quad \text{or} \quad b \ne 1 \quad \text{or}\quad (a \ne 1 \quad \& \quad b \ne 1).
+$$
+
+Provide a practical interpretation of the above test result. [*Hint: $H_a$ basically says that there is no constraints for $a$ and $b$. Please review the lecture note for module 11  on the likelihood ratio test before coding.*]
+
+\
+
+```{r}
+
+mle.result <- optim(
+  par     = c(a = a_init, b = b_init),
+  fn      = kuma.loglik,
+  gr      = kuma.score,
+  data    = reservoir,
+  method  = "L-BFGS-B",
+  lower   = c(1e-6, 1e-6),
+  hessian = TRUE,
+  control = list(fnscale = -1, maxit = 1000, abstol = 1e-8, trace = FALSE)
+)
+
+a_hat           <- mle.result$par["a"]
+b_hat           <- mle.result$par["b"]
+ll_unrestricted <- mle.result$value      # l(a_hat, b_hat)
+
+
+
+# Restricted log-likelihood under H0: a = 1, b = 1
+
+ll_null <- kuma.loglik(c(1, 1), reservoir)
+
+
+# LRT statistic
+# LR = -2 * [l(a_hat, b_hat) - l(1, 1)] -> chi^2(df = 2)
+
+
+LR <- -2 * (ll_null - ll_unrestricted)   # equivalent to 2*(ll_unrestricted - ll_null)
+
+cat("\n Likelihood Ratio Test \n",
+"H0: a = 1 AND b = 1 (Uniform distribution)\n",
+"Ha: a Does not equal 1 OR b Does not equal 1 (Full Kumaraswamy)\n",
+"LR statistic:", LR, "\n")
+
+# p-value (right-tailed chi-square, df = 2)
+
+p.val <- 1 - pchisq(LR, df = 2)
+cat("p-value:", p.val, "\n")
+
+
+```
+Reject H0, data does not follow a uniform distribution. 
+
+A uniform distribution would imply that every storage level — from nearly empty to nearly full — is equally likely during the dry season. Rejecting means H0 means that storage levels are not uniformly distributed.
